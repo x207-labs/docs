@@ -140,8 +140,8 @@ export async function POST(req: Request) {
       stream: result.stream,
       onError: (error) => {
         // Status and message only: never the request, headers or key.
-        const e = error as { statusCode?: number; message?: string };
-        console.error('chat upstream error', e?.statusCode ?? '', String(e?.message ?? '').slice(0, 200));
+        const e = error as { statusCode?: number; message?: string; responseBody?: string };
+        console.error('chat upstream error', e?.statusCode ?? '', String(e?.message ?? '').slice(0, 200), String(e?.responseBody ?? '').slice(0, 300));
         return 'The AI assistant is temporarily unavailable. Please try again later.';
       },
     }),
