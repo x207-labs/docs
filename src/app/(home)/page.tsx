@@ -32,31 +32,36 @@ const stats = [
 
 function Hero() {
   return (
-    <svg viewBox="0 0 420 420" className="w-full max-w-[420px]" aria-hidden="true">
-      <defs>
-        <radialGradient id="hero-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stopColor="#3d8bff" stopOpacity=".35" />
-          <stop offset="100%" stopColor="#3d8bff" stopOpacity="0" />
-        </radialGradient>
-      </defs>
-      <circle cx="210" cy="210" r="205" fill="url(#hero-glow)" />
+    <div className="relative w-full max-w-[420px]">
+      {/* Logo sits outside the svg and has no transformed ancestor, so mix-blend can drop its black backdrop. */}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/brand/logo-x207.webp"
+        alt=""
+        width={120}
+        height={120}
+        className="absolute left-1/2 top-1/2 size-[28%] -translate-x-1/2 -translate-y-1/2 invert mix-blend-multiply dark:invert-0 dark:mix-blend-lighten"
+      />
+      <HeroOrbits />
+    </div>
+  );
+}
+
+function HeroOrbits() {
+  return (
+    <svg viewBox="0 0 420 420" className="w-full text-fd-foreground" aria-hidden="true">
       <g className="x207-orbit" style={{ transformOrigin: '210px 210px' }}>
-        <circle cx="210" cy="210" r="150" fill="none" stroke="#3d8bff" strokeOpacity=".35" strokeDasharray="3 7" />
-        <circle cx="210" cy="60" r="9" fill="#3d8bff" />
-        <circle cx="340" cy="285" r="9" fill="#34c46e" />
+        <circle cx="210" cy="210" r="150" fill="none" stroke="currentColor" strokeOpacity=".22" strokeDasharray="3 7" />
+        <circle cx="210" cy="60" r="9" fill="#0a84ff" />
+        <circle cx="340" cy="285" r="9" fill="#5dcaa5" />
         <circle cx="80" cy="285" r="9" fill="#f5a524" />
-        <path d="M210 60 340 285 80 285Z" fill="none" stroke="#3d8bff" strokeOpacity=".4" />
+        <path d="M210 60 340 285 80 285Z" fill="none" stroke="#0a84ff" strokeOpacity=".5" />
       </g>
       <g className="x207-orbit-rev" style={{ transformOrigin: '210px 210px' }}>
-        <circle cx="210" cy="210" r="100" fill="none" stroke="#8fa3b5" strokeOpacity=".3" strokeDasharray="2 8" />
+        <circle cx="210" cy="210" r="100" fill="none" stroke="currentColor" strokeOpacity=".18" strokeDasharray="2 8" />
         <circle cx="310" cy="210" r="5" fill="#5dcaa5" />
         <circle cx="110" cy="210" r="5" fill="#5dcaa5" />
       </g>
-      <foreignObject x="170" y="170" width="80" height="80">
-        <div className="x207-float">
-          <Coin kind="x207" size={80} />
-        </div>
-      </foreignObject>
     </svg>
   );
 }
@@ -69,18 +74,18 @@ export default function HomePage() {
         <div className="relative mx-auto grid max-w-6xl items-center gap-10 px-4 py-16 md:grid-cols-[1.2fr_1fr] md:py-24">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-fd-border bg-fd-card px-3 py-1 text-xs text-fd-muted-foreground">
-              <span className="size-1.5 rounded-full bg-[#34c46e]" /> NEAR testnet only
+              <span className="size-1.5 rounded-full bg-[#5dcaa5]" /> NEAR testnet only
             </span>
-            <h1 className="mt-5 font-[family-name:var(--font-display)] text-4xl font-bold leading-[1.05] tracking-tight md:text-6xl">
+            <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] md:text-6xl">
               x402 lets agents pay.
               <br />
-              <span className="font-[family-name:var(--font-voice)] font-normal italic text-fd-primary">x207 lets them settle at once.</span>
+              <span className="text-fd-muted-foreground">x207 lets them settle at once.</span>
             </h1>
             <p className="mt-5 max-w-xl text-fd-muted-foreground md:text-lg">
               A mutual-credit settlement layer for agent payments on NEAR. Agents pay with signed vouchers, a circle nets every position each epoch, and only the net residual moves in USDT.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
-              <Link href="/docs" className="rounded-lg bg-fd-primary px-5 py-2.5 text-sm font-medium text-fd-primary-foreground transition hover:opacity-90">
+              <Link href="/docs" className="rounded-lg bg-fd-foreground px-5 py-2.5 text-sm font-medium text-fd-background transition hover:opacity-90">
                 Read the docs
               </Link>
               <Link href="/docs/quickstart" className="rounded-lg border border-fd-border bg-fd-card px-5 py-2.5 text-sm font-medium transition hover:bg-fd-accent">
@@ -104,7 +109,7 @@ export default function HomePage() {
         <div className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-fd-border bg-fd-border md:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label} className="bg-fd-card px-5 py-6">
-              <div className="font-[family-name:var(--font-display)] text-3xl font-bold text-fd-primary">{s.value}</div>
+              <div className="text-3xl font-semibold tracking-tight">{s.value}</div>
               <div className="mt-1 text-sm text-fd-muted-foreground">{s.label}</div>
             </div>
           ))}
@@ -115,11 +120,11 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 py-8">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold md:text-3xl">How it works</h2>
+        <h2 className="text-2xl font-semibold tracking-[-0.03em] md:text-3xl">How it works</h2>
         <div className="mt-6 grid gap-4 md:grid-cols-4">
           {steps.map((s, i) => (
             <div key={s.title} className="relative rounded-2xl border border-fd-border bg-fd-card p-5">
-              <span className="absolute right-4 top-3 font-[family-name:var(--font-display)] text-4xl font-bold text-fd-border">{i + 1}</span>
+              <span className="absolute right-4 top-3 text-4xl font-semibold text-fd-border">{i + 1}</span>
               <div className="flex size-10 items-center justify-center rounded-xl bg-fd-accent text-fd-primary">
                 <Icon name={s.icon} size={22} />
               </div>
@@ -140,7 +145,7 @@ export default function HomePage() {
       </section>
 
       <section className="mx-auto max-w-6xl px-4 pb-20">
-        <h2 className="font-[family-name:var(--font-display)] text-2xl font-bold md:text-3xl">Explore</h2>
+        <h2 className="text-2xl font-semibold tracking-[-0.03em] md:text-3xl">Explore</h2>
         <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {sections.map((s) => (
             <Link key={s.href} href={s.href} className="group flex items-start gap-4 rounded-2xl border border-fd-border bg-fd-card p-4 transition hover:border-fd-primary/50 hover:bg-fd-accent">

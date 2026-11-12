@@ -2,85 +2,85 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
-/* x207 theme: same palette as the landing page (deep navy, electric blue). Dark first. */
+/* x207 docs theme, same as the landing page: near-black surfaces, white ink, blue only on objects
+   (links, icons, diagram strokes, small buttons), never as a background wash. */
 :root {
-  --color-fd-background: #f6f9fd;
-  --color-fd-foreground: #0a1220;
+  --x207-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', var(--font-geist), 'Helvetica Neue', system-ui, sans-serif;
+  --x207-code: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, var(--font-geist-mono), monospace;
+
+  --color-fd-background: #fafafa;
+  --color-fd-foreground: #0a0a0a;
   --color-fd-card: #ffffff;
-  --color-fd-card-foreground: #0a1220;
+  --color-fd-card-foreground: #0a0a0a;
   --color-fd-popover: #ffffff;
-  --color-fd-popover-foreground: #0a1220;
-  --color-fd-muted: #e8eef7;
-  --color-fd-muted-foreground: #4a5d73;
-  --color-fd-secondary: #e8eef7;
-  --color-fd-secondary-foreground: #0a1220;
-  --color-fd-accent: #dbe8fb;
-  --color-fd-accent-foreground: #0a1220;
-  --color-fd-border: rgb(26 60 255 / 0.14);
-  --color-fd-primary: #1a62d6;
+  --color-fd-popover-foreground: #0a0a0a;
+  --color-fd-muted: #f0f0f1;
+  --color-fd-muted-foreground: #5f6168;
+  --color-fd-secondary: #f0f0f1;
+  --color-fd-secondary-foreground: #0a0a0a;
+  --color-fd-accent: #ececee;
+  --color-fd-accent-foreground: #0a0a0a;
+  --color-fd-border: rgb(0 0 0 / 0.1);
+  --color-fd-primary: #0a6ee0;
   --color-fd-primary-foreground: #ffffff;
-  --color-fd-ring: #3d8bff;
-  --x207-glow: rgb(61 139 255 / 0.18);
+  --color-fd-ring: #0a84ff;
 
   --pele-bg: transparent;
-  --pele-fg: #0a1220;
-  --pele-surface: #eef4fc;
-  --pele-accent: #1a62d6;
-  --pele-line: #5b7aa6;
-  --pele-border: #a9bfdc;
-  --pele-muted: #4a5d73;
-  --pele-series-1: #1a62d6;
-  --pele-series-2: #1f9f5a;
-  --pele-series-3: #d98a0b;
-  --pele-series-4: #2a9d8f;
-  --pele-series-5: #7a4fd6;
-  --pele-series-6: #d0446b;
-  --pele-series-7: #5b7aa6;
-  --pele-series-8: #0a1220;
-  --pele-font: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --pele-fg: #0a0a0a;
+  --pele-surface: #f4f4f5;
+  --pele-accent: #0a6ee0;
+  --pele-line: #71717a;
+  --pele-border: #c4c4cc;
+  --pele-muted: #5f6168;
+  --pele-series-1: #0a6ee0;
+  --pele-series-2: #0f8a63;
+  --pele-series-3: #c47f0a;
+  --pele-series-4: #1d9b86;
+  --pele-series-5: #6d4fd0;
+  --pele-series-6: #cc3f66;
+  --pele-series-7: #71717a;
+  --pele-series-8: #0a0a0a;
+  --pele-font: var(--x207-sans);
 }
 
 .dark {
-  --color-fd-background: #05070b;
-  --color-fd-foreground: #eaf6ff;
-  --color-fd-card: #0a0f17;
-  --color-fd-card-foreground: #eaf6ff;
-  --color-fd-popover: #0a0f17;
-  --color-fd-popover-foreground: #eaf6ff;
-  --color-fd-muted: #0e1622;
-  --color-fd-muted-foreground: #8fa3b5;
-  --color-fd-secondary: #0e1622;
-  --color-fd-secondary-foreground: #eaf6ff;
-  --color-fd-accent: rgb(61 139 255 / 0.14);
-  --color-fd-accent-foreground: #eaf6ff;
-  --color-fd-border: rgb(140 180 255 / 0.12);
-  --color-fd-primary: #3d8bff;
-  --color-fd-primary-foreground: #05070b;
-  --color-fd-ring: #3d8bff;
-  --x207-glow: rgb(61 139 255 / 0.22);
+  --color-fd-background: #0a0a0a;
+  --color-fd-foreground: #fafafa;
+  --color-fd-card: #141414;
+  --color-fd-card-foreground: #fafafa;
+  --color-fd-popover: #141414;
+  --color-fd-popover-foreground: #fafafa;
+  --color-fd-muted: #1c1c1c;
+  --color-fd-muted-foreground: #a1a1aa;
+  --color-fd-secondary: #1c1c1c;
+  --color-fd-secondary-foreground: #fafafa;
+  --color-fd-accent: #1c1c1c;
+  --color-fd-accent-foreground: #fafafa;
+  --color-fd-border: rgb(255 255 255 / 0.09);
+  --color-fd-primary: #0a84ff;
+  --color-fd-primary-foreground: #ffffff;
+  --color-fd-ring: #0a84ff;
 
   --pele-bg: transparent;
-  --pele-fg: #eaf6ff;
-  --pele-surface: #101a29;
-  --pele-accent: #3d8bff;
-  --pele-line: #6f8db3;
-  --pele-border: #2a3e5c;
-  --pele-muted: #8fa3b5;
-  --pele-series-1: #3d8bff;
-  --pele-series-2: #34c46e;
+  --pele-fg: #fafafa;
+  --pele-surface: #1c1c1c;
+  --pele-accent: #0a84ff;
+  --pele-line: #8a8a93;
+  --pele-border: #3a3a42;
+  --pele-muted: #a1a1aa;
+  --pele-series-1: #0a84ff;
+  --pele-series-2: #5dcaa5;
   --pele-series-3: #f5a524;
-  --pele-series-4: #5dcaa5;
+  --pele-series-4: #5ac8fa;
   --pele-series-5: #a58bff;
   --pele-series-6: #ff7a9c;
-  --pele-series-7: #8fa3b5;
-  --pele-series-8: #eaf6ff;
+  --pele-series-7: #8a8a93;
+  --pele-series-8: #fafafa;
 }
 
 @theme inline {
-  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-mono), ui-monospace, monospace;
-  --font-display: var(--font-display), var(--font-body), sans-serif;
-  --font-voice: var(--font-voice), Georgia, serif;
+  --font-sans: var(--x207-sans);
+  --font-mono: var(--x207-code);
 }
 
 html {
@@ -93,26 +93,20 @@ html > body[data-scroll-locked] {
 }
 
 body {
-  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--x207-sans);
 }
 
-/* Headings in the display face, with a faint glow behind the page header in dark mode. */
-.prose h1,
-#nd-page h1 {
-  font-family: var(--font-display), var(--font-body), sans-serif;
-  letter-spacing: -0.02em;
-  font-weight: 700;
+/* Landing-style headings: tight tracking, semibold. */
+#nd-page h1,
+.prose h1 {
+  letter-spacing: -0.035em;
+  font-weight: 650;
 }
 
 .prose h2,
 .prose h3 {
-  font-family: var(--font-display), var(--font-body), sans-serif;
-  letter-spacing: -0.01em;
-}
-
-.dark #nd-page {
-  background-image: radial-gradient(60rem 22rem at 50% -6rem, var(--x207-glow), transparent 70%);
-  background-repeat: no-repeat;
+  letter-spacing: -0.025em;
+  font-weight: 600;
 }
 
 /* Diagrams: let the pele svg scale down on narrow screens. */
@@ -126,10 +120,10 @@ body {
 /* Landing */
 .x207-hero-grid {
   background-image:
-    linear-gradient(to right, rgb(140 180 255 / 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(140 180 255 / 0.07) 1px, transparent 1px);
+    linear-gradient(to right, rgb(128 128 128 / 0.1) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(128 128 128 / 0.1) 1px, transparent 1px);
   background-size: 44px 44px;
-  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 30%, transparent 75%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, #000 25%, transparent 75%);
 }
 
 @keyframes x207-spin {

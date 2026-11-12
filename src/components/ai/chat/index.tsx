@@ -374,7 +374,7 @@ export function AIChatTrigger({ className }: { className?: string }) {
       aria-expanded={open}
       className={cn(
         buttonVariants({ variant: 'primary' }),
-        'fixed inset-e-[calc(--spacing(4)+var(--removed-body-scroll-bar-size,0px))] bottom-4 z-20 gap-2 rounded-full px-4 py-2.5 shadow-[0_8px_30px_var(--x207-glow)] transition-[translate,opacity] motion-reduce:transition-none',
+        'fixed inset-e-[calc(--spacing(4)+var(--removed-body-scroll-bar-size,0px))] bottom-4 z-20 gap-2 rounded-full px-4 py-2.5 shadow-lg transition-[translate,opacity] motion-reduce:transition-none',
         open && 'translate-y-10 opacity-0',
         className,
       )}
