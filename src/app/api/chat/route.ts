@@ -56,7 +56,7 @@ const STOPWORDS = new Set(
   'the and for are was were what when where which who whom how why does did can could would should will with that this these those from into onto about after before then than them they their there here have has had not but you your our its out any all per via use used using get got make made'.split(' '),
 );
 
-async function retrieve(query: string): Promise<Chunk[]> {
+async function retrieve(query: string, pagePath?: string): Promise<Chunk[]> {
   const { index, chunks } = await getIndex();
   // A whole sentence as one query needs every word in one chunk, so search each content word
   // on its own and rank chunks by how many words (and which fields) matched.
@@ -78,11 +78,13 @@ async function retrieve(query: string): Promise<Chunk[]> {
       }
     }
   }
-  const ordered = [...score.entries()]
+  const ranked = [...score.entries()]
     .sort((a, b) => b[1] - a[1])
     .map(([n]) => chunks[n])
-    .filter(Boolean)
-    .slice(0, 10);
+    .filter(Boolean);
+  // The page the user is reading comes first: "summarize this page" has no keywords of its own.
+  const current = pagePath ? chunks.filter((c) => c.url === pagePath) : [];
+  const ordered = [...new Set([...current, ...ranked])].slice(0, 10);
   return fitToBudget(ordered);
 }
 
@@ -139,7 +141,17 @@ export async function POST(req: Request) {
     return text(`Message too long (max ${MAX_MESSAGE_CHARS} characters).`, 400);
   }
 
-  const context = await retrieve(userText(last));
+  // Page the question was asked from (sent by the client as a data-client part).
+  let pagePath: string | undefined;
+  for (const p of last.parts) {
+    if (p.type === 'data-client') {
+      try {
+        const loc = new URL(String((p.data as { location?: string })?.location ?? ''));
+        if (loc.pathname.startsWith('/docs')) pagePath = loc.pathname.replace(/\/$/, '');
+      } catch {}
+    }
+  }
+  const context = await retrieve(userText(last), pagePath);
 
   const provider = createOpenAICompatible({ name: 'xkiro', baseURL: BASE_URL, apiKey });
 
