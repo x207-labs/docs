@@ -1,0 +1,12 @@
+{
+  "title": "Concepts",
+  "pages": [
+    "index",
+    "circles",
+    "vouchers",
+    "epochs-and-clearing",
+    "residual-and-settlement",
+    "stake-and-credit-limits",
+    "x402-scheme"
+  ]
+}

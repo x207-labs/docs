@@ -1,0 +1,64 @@
+---
+title: Circles
+description: A circle is one x207-circle NEAR contract with its members, stakes, parameters and epochs.
+---
+
+A **circle** is one deployment of the `x207-circle` contract. It holds the member list, the stakes, the parameters and the epoch state. Members only owe each other inside the same circle.
+
+The active testnet circle is `x207-v018.testnet`. Its circle id is `agents-main`, the same id on every deployed contract. Earlier circles (`v013`, `v014`, `v015`, `v017`) remain on testnet.
+
+## Creating a circle
+
+The contract is initialised once:
+
+```text
+new(owner_id, circle_id, usdt_token_id, intents_id, params)
+```
+
+There is no setter for the token. A circle settles in the single NEP-141 token set at `new`. To change token you deploy a new circle and members stake again (see the [roadmap](/docs/roadmap) for USDC).
+
+## Members
+
+A member goes through these states:
+
+| State | Meaning |
+| --- | --- |
+| `pending` | Joined, not yet admitted (only when admission is `dao`). |
+| `active` | Can pay and be paid within its credit limit. |
+| `suspended` | Defaulted. Limit is 0. |
+| `exited` | Left after `request_exit` and `withdraw_stake`. |
+
+Admission is `open` or `dao`, set in the circle parameters. Joining needs a 0.35 NEAR deposit, which is not refunded, and the stake sent as an `ft_transfer_call` of USDT with msg action `stake`. A new member registers a **voucher key**, an ed25519 key that is separate from its NEAR access key.
+
+## Parameters
+
+The defaults in the contract (`params.rs`) are below. A deployed circle can use other values.
+
+| Parameter | Default |
+| --- | --- |
+| `epoch_length` | 3600 s (range 300 to 604800) |
+| `proposal_window` | 600 s (min 60) |
+| `payment_window` | 1800 s (min 900) |
+| `base_limit_ratio` | 8000 (80%) |
+| `limit_growth` | 1000 |
+| `limit_cap` | 1,000,000,000 (1000 credit) |
+| `clearing_fee_bps`, `solver_fee_bps` | 0 (max 100) |
+| `admission` | `open` or `dao` |
+
+Credit has 6 decimals and 1 credit equals 1 USDT unit at settlement.
+
+## Who can do what
+
+- Members join, sign vouchers, pay and claim.
+- The keeper steps (`close_epoch`, `commit_epoch`, `finalize_epoch`) are open to any account.
+- Any account can act as a solver and call `submit_clearing`.
+- Withdrawing an Intents balance with `withdraw_intents_balance` is permissionless.
+
+## Source
+
+- [contracts/README.md](https://github.com/x207-labs/contracts/blob/main/README.md)
+- [x207-circle/src/params.rs](https://github.com/x207-labs/contracts/blob/main/x207-circle/src/params.rs)
+- [x207-circle/src/config.rs](https://github.com/x207-labs/contracts/blob/main/x207-circle/src/config.rs)
+- [x207-circle/src/member.rs](https://github.com/x207-labs/contracts/blob/main/x207-circle/src/member.rs)
+- [x207-circle/src/stake.rs](https://github.com/x207-labs/contracts/blob/main/x207-circle/src/stake.rs)
+- [docs/join-the-circle.md](https://github.com/x207-labs/x207/blob/main/docs/join-the-circle.md)

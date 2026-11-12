@@ -1,0 +1,50 @@
+---
+title: Stake and credit limits
+description: A member's credit limit is bounded by its stake. The formula, defaults, and what x207 does not promise.
+---
+
+Every member locks a **stake** in USDT. The stake is the cash that covers the member's debts. A member's **credit limit** says how much it can owe at once.
+
+## The rule
+
+```text
+limit <= stake
+```
+
+The limit never exceeds the stake. A debtor's own stake therefore covers the debt if it defaults.
+
+## The formula
+
+```text
+limit = min(limit_cap,
+            stake * base_limit_ratio / 10000 + settled_history * limit_growth / 10000,
+            stake)
+```
+
+Defaults: `base_limit_ratio` 8000, `limit_growth` 1000, `limit_cap` 1,000,000,000 (1000 credit). `settled_history` grows only when a member settles in cash. Cycle clearing does not raise it, so trading in circles to inflate a limit does not work.
+
+So a new member starts at 80% of its stake, and the limit grows with a record of cash settlement, up to the stake and the cap. A deployed circle can use other parameters.
+
+## Headroom
+
+```text
+headroom = max(0, limit - outstanding_debt - bundle reservations)
+```
+
+Headroom is what a member can still spend now.
+
+## What this costs
+
+Capital locked is at least 125% of the debt a member can run up (stake over limit at the default ratio). x207 is not undercollateralised credit. It is netting with collateral: less value moves, the stake is the guarantee, and credit above stake is not built in the current version.
+
+## Leaving
+
+A member calls `request_exit`, waits out the circle's exit rules, then `withdraw_stake`.
+
+## Source
+
+- [x207-circle/src/risk.rs](https://github.com/x207-labs/contracts/blob/main/x207-circle/src/risk.rs)
+- [x207-circle/src/params.rs](https://github.com/x207-labs/contracts/blob/main/x207-circle/src/params.rs)
+- [x207-circle/src/stake.rs](https://github.com/x207-labs/contracts/blob/main/x207-circle/src/stake.rs)
+- [docs/problem-and-gap.md](https://github.com/x207-labs/x207/blob/main/docs/problem-and-gap.md)
+- [docs/security-and-limits.md](https://github.com/x207-labs/x207/blob/main/docs/security-and-limits.md)

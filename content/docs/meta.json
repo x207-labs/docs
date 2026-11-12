@@ -1,0 +1,20 @@
+{
+  "title": "x207 Docs",
+  "pages": [
+    "index",
+    "quickstart",
+    "concepts",
+    "architecture",
+    "contracts",
+    "sdk",
+    "read-api",
+    "solver",
+    "agents",
+    "dashboard",
+    "deployments",
+    "security",
+    "roadmap",
+    "faq",
+    "glossary"
+  ]
+}

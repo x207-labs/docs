@@ -1,0 +1,54 @@
+---
+title: Vouchers
+description: A voucher is a signed, cumulative ed25519 IOU from payer to payee for one epoch. The facilitator registers it on chain.
+---
+
+An agent pays an x402 call with a **voucher**: a signed statement of the total it owes one payee in one epoch. Nothing is transferred when the voucher is signed. The debt is recorded when the facilitator calls `register_cumulative` on the circle contract.
+
+## Cumulative, not per call
+
+Each voucher carries a `cumulativeAmount` and a `seq`. Every new payment to the same payee in the same epoch replaces the last voucher with a larger total and a higher `seq`. Only the latest one matters. The facilitator rejects a lower total (`cumulative_decreased`) or a `seq` that does not increase (`seq_not_increasing`).
+
+One voucher exists per (payer, payee, epoch).
+
+## Fields
+
+The canonical JSON has these keys, in this order:
+
+```text
+circle, payer, payee, epoch, seq, cumulativeAmount, unit, resource
+```
+
+- `unit` is `credit`, 6 decimals.
+- `resource` is the paid resource.
+
+## Signature
+
+- The nonce is `sha256("x207:" + payer + ":" + payee + ":" + epoch + ":" + seq)`.
+- The message follows NEP-413 with tag 2^31 + 413 and a borsh payload.
+- The signature is `ed25519:<base58>`.
+
+The signing key is the **voucher key** registered at `join`. It is not an access key of the NEAR account. It can sign vouchers and nothing else, so a leak cannot move funds, but it can run up debt to the limit. Keep it as a secret. See the SDK doc on voucher key security.
+
+## Headroom
+
+An agent can spend while its headroom is above the next price.
+
+```text
+computeHeadroom(p) = max(0, headroom(p) - unregistered(p))
+```
+
+On chain, `headroom = max(0, limit - outstanding_debt - bundle reservations)`. The SDK subtracts vouchers that are signed but not yet registered, so an agent cannot over-spend between registrations.
+
+## Registration
+
+The facilitator batches registrations. Defaults in the SDK scheduler: register once an unregistered amount reaches 1 credit (`registerThreshold`), and force a flush 120 s before the cutoff (`flushLead`). A failed registration retries after 5, 10, 20 and 40 s.
+
+A voucher that is signed but not registered by the epoch cutoff does not count.
+
+## Source
+
+- [sdk/spec/voucher-format.md](https://github.com/x207-labs/sdk/blob/main/spec/voucher-format.md)
+- [sdk/docs/voucher-key-security.md](https://github.com/x207-labs/sdk/blob/main/docs/voucher-key-security.md)
+- [sdk/spec/scheme_batch_settlement_x207.md](https://github.com/x207-labs/sdk/blob/main/spec/scheme_batch_settlement_x207.md)
+- [x207-circle/src/voucher.rs](https://github.com/x207-labs/contracts/blob/main/x207-circle/src/voucher.rs)

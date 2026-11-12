@@ -1,0 +1,53 @@
+---
+title: FAQ
+description: Short answers about what x207 is, what it saves, what it does not, and what is live.
+---
+
+## Is x207 live on mainnet?
+
+No. It runs on NEAR testnet with a mock USDT that anyone can mint. A mainnet checklist and runbook exist. Nothing has been run on mainnet.
+
+## Does it save gas?
+
+No. In the recorded epoch 8, x207 used 109.7 Tgas (226.6 Tgas with registrations) against 54.9 Tgas for the 24 equivalent transfers. It moves less value, not less gas. Break-even is about 3 to 4 trades per pair per epoch.
+
+## How much value does it save?
+
+In that epoch, 7.75 of 41.35 credit moved (18.7%). That is one recorded testnet run. Star graphs, where everyone pays one hub, gain nothing. A published benchmark of other researchers' data reports about 23% for a real mutual-credit network; that is not an x207 result.
+
+## Is it credit without collateral?
+
+No. Limit is bounded by stake, and capital locked is at least 125% of the debt a member can run up. Credit above stake is on the [roadmap](/docs/roadmap), not built.
+
+## What if someone does not pay?
+
+The debtor's stake covers the debt, and the member is suspended with limit 0. See [Residual and settlement](/docs/concepts/residual-and-settlement).
+
+## Who can run a solver or a keeper?
+
+Anyone. Both are open. The contract verifies a clearing in O(n) and does not trust the solver.
+
+## Is the voucher key a wallet key?
+
+No. It signs vouchers only. Joining, settling and claiming need a full-access NEAR key because they attach a deposit.
+
+## Did x402 accept this scheme?
+
+Not yet. It was proposed as x402-foundation/x402#4131. Nobody has accepted it.
+
+## Does it work with NEAR Intents on mainnet?
+
+Not tested there. The residual batch ran against the real `intents.near` wasm in a local sandbox only. A dry quote ran against the 1Click API; no funds moved.
+
+## Which token does it settle in?
+
+Mock USDT on testnet (`usdt.x207-deployer.testnet`). The mainnet target is `usdt.tether-token.near`. USDC is on the [roadmap](/docs/roadmap).
+
+## Source
+
+- [README.md](https://github.com/x207-labs/x207/blob/main/README.md)
+- [CLAIMS.md](https://github.com/x207-labs/x207/blob/main/CLAIMS.md)
+- [docs/security-and-limits.md](https://github.com/x207-labs/x207/blob/main/docs/security-and-limits.md)
+- [docs/what-has-run.md](https://github.com/x207-labs/x207/blob/main/docs/what-has-run.md)
+- [docs/gas-epoch8-vs-transfers.md](https://github.com/x207-labs/x207/blob/main/docs/gas-epoch8-vs-transfers.md)
+- [docs/relief-curve.md](https://github.com/x207-labs/x207/blob/main/docs/relief-curve.md)

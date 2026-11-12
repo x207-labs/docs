@@ -1,0 +1,189 @@
+---
+title: Events and errors
+description: The 52 events of the x207-circle contract with their fields, and the error codes a call can fail with.
+---
+
+## Event format
+
+Each event is a NEP-297 log line:
+
+```text
+EVENT_JSON:{"standard":"x207","version":"0.0.18","event":"<name>","data":[{...}]}
+```
+
+`version` is the contract interface version. `data` is a list; one log can carry several items (up to 50, `MAX_EVENT_ITEMS`). A log stays under 16,384 bytes, so large results are emitted as a hash plus counts, or in chunks (`limits_updated` has `chunk` and `chunks`). The backend indexer reads these logs to build its read model. The field lists below are from `contracts/abi.json`.
+
+## Events
+
+### Membership and stake
+
+| Event | Fields |
+| --- | --- |
+| `member_joined` | `account_id`, `pubkey_voucher`, `terms_hash`, `status`, `joined_at` |
+| `member_admitted` | `account_id`, `status` |
+| `member_removed` | `account_id`, `by_owner` |
+| `stake_added` | `account_id`, `sender_id`, `amount`, `stake`, `limit`, `status` |
+| `member_reactivated` | `account_id`, `stake`, `limit`, `effective_epoch` |
+| `exit_requested` | `account_id`, `epoch` |
+| `stake_withdrawn` | `account_id`, `amount` |
+| `stake_withdraw_failed` | `account_id`, `amount` |
+| `auto_settle_set` | `account_id`, `enabled` |
+| `member_frozen` | `account_id`, `from_epoch` |
+| `freeze_proposed` | `account_id`, `eta`, `reason_hash` |
+| `freeze_cancelled` | `account_id` |
+| `member_unfrozen` | `account_id` |
+
+### Vouchers and the epoch cycle
+
+| Event | Fields |
+| --- | --- |
+| `voucher_registered` | `payer`, `payee`, `epoch`, `seq`, `cumulative_amount`, `delta`, `obligation`, `outstanding_debt`, `mode` |
+| `epoch_cutoff` | `epoch`, `closed_at`, `proposal_deadline`, `edge_count`, `participant_count`, `total_obligation`, `next_epoch`, `next_cutoff_at` |
+| `clearing_submitted` | `epoch`, `solver`, `cleared_total`, `edge_count`, `replaced_solver`, `replaced_cleared_total` |
+| `clearing_applied` | `epoch`, `solver`, `cleared_total`, `edge_count`, `edges_hash`, `clearing_fee`, `solver_fee` |
+| `epoch_committed` | `epoch`, `committed_at`, `payment_deadline`, `total_due`, `total_claimable`, `position_count`, `positions_hash`, `positions` |
+| `residual_paid` | `epoch`, `account_id`, `sender_id`, `amount`, `refunded`, `settled_history` |
+| `auto_settled` | `epoch`, `account_id`, `due`, `stake`, `status`, `position_status`, `outstanding_debt` |
+| `member_defaulted` | `epoch`, `account_id`, `due`, `from_stake`, `from_reserve`, `shortfall`, `stake`, `status`, `position_status`, `outstanding_debt` |
+| `limits_updated` | `epoch`, `changes`, `chunk`, `chunks` |
+| `epoch_finalized` | `epoch`, `finalized_at`, `defaulted_count`, `total_defaulted`, `pool`, `shortfall` |
+| `params_updated` | `old`, `new`, `changed`, `effective_epoch` |
+
+### Payouts
+
+| Event | Fields |
+| --- | --- |
+| `residual_claimed` | `epoch`, `account_id`, `amount`, `destination`, `status` |
+| `residual_claim_failed` | `epoch`, `account_id`, `amount`, `destination`, `status` |
+| `solver_fee_claimed` | `account_id`, `amount` |
+| `solver_fee_claim_failed` | `account_id`, `amount` |
+| `intents_withdrawn` | `amount` |
+| `relayer_fee_paid` | `account_id`, `relayer`, `action`, `epoch`, `amount` |
+| `relayer_fee_failed` | `account_id`, `relayer`, `action`, `epoch`, `amount` |
+
+### Barter, deals and bonds
+
+| Event | Fields |
+| --- | --- |
+| `intent_posted` | `intent_hash`, `account_id`, `posted_at` |
+| `intent_removed` | `intent_hash`, `account_id` |
+| `bundle_committed` | `bundle_id`, `terms_hash`, `epoch`, `legs`, `solver` |
+| `bond_locked` | `bundle_id`, `account_id`, `amount` |
+| `deal_confirmed` | `bundle_id`, `account_id`, `of` |
+| `deal_disputed` | `bundle_id`, `complainant`, `accused`, `evidence_hash`, `disputed_at` |
+| `deal_ruled` | `bundle_id`, `arbiter`, `verdict` |
+| `bond_slashed` | `bundle_id`, `from`, `to`, `amount`, `from_stake`, `to_stake` |
+| `bond_released` | `bundle_id`, `account_id`, `amount`, `reason` |
+
+### Grants, escrow and asset classes
+
+| Event | Fields |
+| --- | --- |
+| `asset_class_set` | `asset_type`, `class` |
+| `asset_contracts_set` | `asset_type`, `contracts` |
+| `grant_offered` | `grant_id`, `asset_type`, `grantor`, `class`, `unit`, `unit_price`, `expires_at` |
+| `grant_activated` | `grant_id`, `grantee`, `delivery_pubkey` |
+| `grant_revoked` | `grant_id`, `reason` |
+| `escrow_held` | `grant_id`, `nft_contract`, `token_id` |
+| `ft_escrow_held` | `grant_id`, `ft_contract`, `amount` |
+| `mt_escrow_held` | `grant_id`, `mt_contract`, `token_id`, `amount` |
+| `account_escrow_held` | `grant_id`, `account_id` |
+| `escrow_failed` | `grant_id`, `step`, `epoch`, `payer`, `payee`, `delta`, `reverted` |
+
+### Upgrade
+
+| Event | Fields |
+| --- | --- |
+| `upgrade_proposed` | `code_hash`, `eta` |
+| `upgrade_applied` | `code_hash`, `applied_at` |
+
+## Enumerations used in events
+
+- Member `status`: `pending`, `active`, `suspended`, `exited`.
+- Position status: `due`, `paid`, `defaulted`, `claimable`, `claimed`.
+- `destination`: `near`, `intents`.
+- Deal `verdict`: `accused_guilty`, `complaint_false`, `no_fault`.
+- Grant revoke `reason`: `grantor`, `grantee`, `operator`, `expired`, `defaulted`.
+- `escrow_failed` `step`: `complete`, `cancel`.
+
+## Errors
+
+A failed call panics with a message that starts with a stable code, in the form `ERR_CODE: detail`. Match on the code, not on the detail. Codes below are those used in the contract source.
+
+### Access and state
+
+`ERR_NOT_OWNER`, `ERR_NOT_MEMBER`, `ERR_NOT_ADMITTED`, `ERR_NOT_PENDING`, `ERR_ALREADY_MEMBER`, `ERR_ALREADY_ADMITTED`, `ERR_ADMISSION_NOT_DAO`, `ERR_MEMBER_EXITED`, `ERR_EXITING`, `ERR_EXIT_NOT_READY`, `ERR_HAS_DUE`, `ERR_MAX_MEMBERS`, `ERR_PENDING_TOO_YOUNG`, `ERR_WRONG_STATUS`, `ERR_WRONG_PHASE`, `ERR_NO_STATE`, `ERR_NOT_IMPLEMENTED`, `ERR_BAD_TRANSITION`, `ERR_FROZEN`, `ERR_NOT_FROZEN`, `ERR_ALREADY_FROZEN`, `ERR_FREEZE_PENDING`, `ERR_FREEZE_NOT_PENDING`, `ERR_FREEZE_TIMELOCK`, `ERR_NO_UPGRADE`, `ERR_TIMELOCK_ACTIVE`, `ERR_CODE_HASH_MISMATCH`.
+
+### Input and signatures
+
+| Code | Meaning |
+| --- | --- |
+| `ERR_BAD_MSG` | `msg` of a token transfer is not one of the accepted shapes |
+| `ERR_WRONG_TOKEN` | token is not the circle's single token |
+| `ERR_BAD_PUBKEY` | `pubkey_voucher` must be an ed25519 key |
+| `ERR_BAD_SIGNATURE` | ed25519 verification failed |
+| `ERR_BAD_TERMS_HASH` | `terms_hash` must be 64 lowercase hex characters |
+| `ERR_BAD_HASH`, `ERR_HASH_JSON`, `ERR_DUPLICATE_HASH` | malformed or repeated hash input |
+| `ERR_WRONG_CIRCLE`, `ERR_WRONG_CIRCLE_ID`, `ERR_BAD_CIRCLE_ID` | circle id does not match |
+| `ERR_BAD_UNIT`, `ERR_RESOURCE_NOT_ASCII` | voucher `unit` or `resource` invalid |
+| `ERR_PARAM_OUT_OF_RANGE` | a param is outside its allowed range |
+| `ERR_ZERO_AMOUNT` | amount must be above zero |
+| `ERR_INSUFFICIENT_STORAGE_DEPOSIT` | `join` attached less than 0.35 NEAR |
+| `ERR_STAKE_OVERFLOW`, `ERR_LIMIT_EXCEEDS_STAKE` | stake or limit arithmetic out of bounds |
+| `ERR_GAS_TOO_LOW` | not enough gas attached for the follow-up calls |
+
+### Vouchers and epochs
+
+`ERR_SELF_PAYMENT`, `ERR_EPOCH_MISMATCH`, `ERR_PAST_CUTOFF`, `ERR_BEFORE_CUTOFF`, `ERR_PAYER_NOT_ACTIVE`, `ERR_PAYEE_NOT_ACTIVE`, `ERR_SEQ_NOT_INCREASING`, `ERR_SEQ_GAP`, `ERR_CUMULATIVE_DECREASED`, `ERR_INSUFFICIENT_CREDIT`, `ERR_UNKNOWN_EPOCH`, `ERR_NOT_FINALIZED`, `ERR_PRUNE_TOO_EARLY`.
+
+### Clearing
+
+| Code | Meaning |
+| --- | --- |
+| `ERR_PROPOSAL_WINDOW_CLOSED`, `ERR_PROPOSAL_WINDOW_OPEN` | wrong time for `submit_clearing` or `commit_epoch` |
+| `ERR_PROPOSAL_NOT_BETTER` | the stored proposal is at least as good |
+| `ERR_EMPTY_PROPOSAL` | the proposal has no edges |
+| `ERR_ZERO_CLEARED` | an edge clears 0 |
+| `ERR_TOO_MANY_EDGES` | more than `MAX_EDGES_PER_TX` (300) edges |
+| `ERR_DUPLICATE_EDGE`, `ERR_EDGE_NOT_IN_SNAPSHOT` | repeated edge, or no obligation behind it |
+| `ERR_CLEARED_EXCEEDS_OBLIGATION` | an edge clears more than the pair owes |
+| `ERR_UNBALANCED_MEMBER` | a member's cleared inflow differs from its outflow |
+| `ERR_PAYMENT_WINDOW_OPEN`, `ERR_PAYMENT_WINDOW_CLOSED` | wrong time for `finalize_epoch` or a residual payment |
+| `ERR_NOT_DUE` | the account's position is not `due` |
+| `ERR_UNDERPAYMENT` | the amount sent is below what is due |
+
+### Claims and withdrawals
+
+`ERR_NO_POSITION`, `ERR_NOT_CREDITOR`, `ERR_NOT_CLAIMABLE`, `ERR_NOTHING_TO_CLAIM`, `ERR_NOTHING_TO_WITHDRAW`, `ERR_WITHDRAW_IN_FLIGHT`, `ERR_POOL_INSUFFICIENT`, `ERR_D2_ACCOUNTING`, `ERR_D6_ACCOUNTING`. The last two are internal accounting guards; seeing one means a bug, not a user mistake.
+
+### Barter, deals and bonds
+
+`ERR_BAD_BUNDLE`, `ERR_BUNDLE_EXISTS`, `ERR_UNKNOWN_BUNDLE`, `ERR_BUNDLE_LEG`, `ERR_BUNDLE_LEG_EXCEEDED`, `ERR_BUNDLE_LIMIT`, `ERR_BUNDLE_HEADROOM`, `ERR_BUNDLE_SIGNATURES`, `ERR_SEARCH_SHARE_EXCEEDED`, `ERR_INTENT_EXISTS`, `ERR_INTENT_LIMIT`, `ERR_UNKNOWN_INTENT`, `ERR_NOT_INTENT_OWNER`, `ERR_ARBITER_INVALID`, `ERR_NOT_ARBITER`, `ERR_DEAL_UNKNOWN`, `ERR_DEAL_NOT_PARTY`, `ERR_DEAL_CLOSED`, `ERR_DEAL_LIMIT`, `ERR_DEAL_WINDOW`, `ERR_DEAL_WINDOW_OVER`, `ERR_DEAL_ALREADY_DISPUTED`, `ERR_DEAL_NOT_DISPUTED`, `ERR_DEAL_NOT_DUE`, `ERR_DEAL_NO_STAKE_AT_RISK`, `ERR_RULING_WINDOW`, `ERR_BOND_REQUIRED`, `ERR_BOND_LOCKED`, `ERR_BOND_INSUFFICIENT_STAKE`.
+
+### Grants and escrow
+
+`ERR_BAD_GRANT`, `ERR_UNKNOWN_GRANT`, `ERR_GRANT_EXPIRED`, `ERR_GRANT_FINAL`, `ERR_GRANT_NOT_OFFERED`, `ERR_GRANT_NOT_ACTIVE_MEMBER`, `ERR_GRANT_REVOKE_DENIED`, `ERR_GRANT_SELF`, `ERR_BAD_ASSET_TYPE`, `ERR_ASSET_TYPE_UNKNOWN`, `ERR_ASSET_CLASS_FORBIDDEN`, `ERR_ASSET_CLASS_NOT_A`, `ERR_PROOF_KIND_NOT_ACCEPTED`, `ERR_DELIVERY_NOT_ALLOWED`, `ERR_CONTRACT_NOT_OFFICIAL`, `ERR_TOO_MANY_CONTRACTS`, `ERR_DUPLICATE_CONTRACT`, `ERR_TOO_MANY_HASHES`.
+
+Escrow: `ERR_ESCROW_EXISTS`, `ERR_ESCROW_UNKNOWN`, `ERR_ESCROW_NOT_HELD`, `ERR_ESCROW_PENDING`, `ERR_ESCROW_NOT_EXPIRED`, `ERR_ESCROW_NOT_GRANTOR`, `ERR_ESCROW_NOT_CLASS_A`, `ERR_ESCROW_NOT_ACCOUNT`, `ERR_ESCROW_DEPOSITOR`, `ERR_ESCROW_NEEDS_PUBKEY`, `ERR_ESCROW_PRICE`, `ERR_ESCROW_USDT`, `ERR_ESCROW_VOUCHER`, `ERR_ESCROW_TOO_LATE`, `ERR_ESCROW_EPOCH_WAIT`, `ERR_ESCROW_TTL_TOO_LONG`, `ERR_BAD_ESCROW_TTL`, `ERR_ESCROW_NFT_MISMATCH`, `ERR_ESCROW_FT_MISMATCH`, `ERR_ESCROW_FT_AMOUNT`, `ERR_ESCROW_MT_MISMATCH`, `ERR_ESCROW_MT_AMOUNT`, `ERR_ESCROW_MT_BATCH`, `ERR_ESCROW_ACCOUNT_MISMATCH`, `ERR_ACCOUNT_ASSET_TYPE`, `ERR_ACCOUNT_LOCKED`, `ERR_ACCOUNT_NOT_SELLABLE`, `ERR_ACCOUNT_SELF`, `ERR_BAD_GC_DELAY`.
+
+### EVM relayed calls
+
+| Code | Meaning |
+| --- | --- |
+| `ERR_BAD_EVM_ADDRESS` | address is not `0x` plus 40 lowercase hex characters |
+| `ERR_BAD_EVM_SIG` | EIP-712 verification failed |
+| `ERR_BAD_EVM_RECEIVER` | receiver not allowed (the Intents contract is refused) |
+| `ERR_EVM_NONCE` | nonce does not match the member's next nonce |
+| `ERR_EVM_EXPIRED` | `deadline` passed |
+| `ERR_EVM_DEADLINE_TOO_FAR` | `deadline` is more than 24 hours ahead |
+| `ERR_EVM_FEE_NOT_ALLOWED` | `join_evm` with a relayer fee above 0 |
+| `ERR_NOT_EVM_MEMBER` | the member is not an EVM member |
+
+## Source
+
+- https://github.com/x207-labs/contracts/blob/main/abi.json
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/events.rs
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/lib.rs
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/verifier.rs
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/evm.rs
+- https://github.com/x207-labs/contracts/blob/main/docs/rules-0.0.13.md

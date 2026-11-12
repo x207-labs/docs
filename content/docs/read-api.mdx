@@ -1,0 +1,218 @@
+---
+title: Read API
+description: HTTP read API of the x207 backend - circles, members, epochs, clearing reports, marketplace books and the testnet faucet. Testnet only.
+---
+
+The backend indexes the NEP-297 events of the `x207-circle` contract into a SQLite read model and serves it over HTTP. The dashboard, the solver, the SDK and its MCP server read from it.
+
+<Callout type="warn">
+Testnet only. Mainnet is not live. The public server is read-only: it serves `GET` routes plus the test-funds faucet. Every other `POST` answers `404 not_found`.
+</Callout>
+
+## Base URL
+
+```
+https://v018.x207.boxd.sh
+```
+
+It serves the testnet circle id `agents-main`. Check it is alive:
+
+```bash
+curl -s https://v018.x207.boxd.sh/healthz
+curl -s https://v018.x207.boxd.sh/x207/circles/agents-main/params
+curl -s "https://v018.x207.boxd.sh/x207/circles/agents-main/members?limit=5"
+```
+
+The indexer halts and writes nothing when its state does not match the chain; it never fixes data silently. Every JSON answer is served from the read model, so a fresh chain event appears after the indexer has processed its block (`GET /x207/health` shows the lag).
+
+## Conventions
+
+| Topic | Rule |
+| --- | --- |
+| Circle path | `{circle}` is the circle id, for example `agents-main`. An unknown id gives `404 circle_not_found` |
+| Amounts | Strings of integers in the smallest unit. Answers carry `unit: "credit"` and `decimals: 6` |
+| Times | ISO 8601 UTC without fractions, for example `2026-11-12T08:45:42Z` |
+| Pagination | `limit` is an integer 1 to 200 (default 50); `cursor` is the opaque `nextCursor` of the previous page. `nextCursor` is `null` on the last page. A bad value gives `400 invalid_request` |
+| Epoch `{n}` | An integer 0 or more, or `current`. A missing epoch gives `404 epoch_not_found` |
+| Errors | `{"error": {"code", "message", "details"}}` |
+| Rate limits | Defaults: 600 requests per minute per IP on all routes, 120 per minute per IP and 60 per minute per account on writes (in memory of one process). Over the limit: `429 rate_limited` with header `Retry-After` in seconds |
+| Body size | Largest write body 64 KiB by default; larger gives `413 payload_too_large` |
+| CORS | Browser origins are allowed by an allow-list set by the operator; an origin outside it gets no `Access-Control-Allow-Origin`. Server-side clients are not affected |
+
+Response bodies are described loosely in the OpenAPI document (`object`) except the error envelope and pages; the fields below come from the route handlers and from live answers.
+
+## Service
+
+| Method | Path | Answer |
+| --- | --- | --- |
+| GET | `/healthz` | `status`, `time`, `uptimeSeconds`, `db` (`ok`, `latencyMs`), `indexer` (`lagBlocks`, `lastBlockHeight`, `headBlockHeight`, `secondsSinceUpdate`, `stale`), `rpc` (`status`, `endpoint`, `latencyMs`), `problems` |
+| GET | `/x207/health` | `status` (`ok`, or `degraded` when lag exceeds 100 blocks), `cursors`: list of `name`, `lastBlockHeight`, `headBlockHeight`, `lagBlocks`, `rpcEndpoint`, `updatedAt`. `503 indexer_unavailable` before the indexer has started |
+| GET | `/metrics` | Prometheus text. Needs a bearer token; without it `401 invalid_signature`. Not a public endpoint |
+
+## Circle, members, epochs
+
+| Method | Path | Query | Answer |
+| --- | --- | --- | --- |
+| GET | `/x207/circles/{circle}/params` | | `circle`, `currentEpoch`, `active` (admission, `base_limit_ratio`, `bond_bps`, `bond_threshold`, `epoch_length`, `fees`, `limit_cap`, `limit_decay`, `limit_growth`, `max_search_share_bps`, `payment_window`, `proposal_window`, `prune_delay_epochs`, `relayer_fee`), `nextEpoch`, `nextEpochEffective` |
+| GET | `/x207/circles/{circle}/params/history` | `cursor`, `limit` | `items`: `id`, `field`, `oldValue`, `newValue`, `effectiveEpoch`, `blockHeight` |
+| GET | `/x207/circles/{circle}/members` | `status` (`pending`, `active`, `suspended`, `exited`), `cursor`, `limit` | `items`: `account`, `status`, `stake`, `limit`, `outstandingDebt`, `headroom`, `termsHash`, `pubkeyVoucher`, `settledHistory`, `joinedAt`, `exitRequestedEpoch` |
+| GET | `/x207/circles/{circle}/members/{account}` | | One member, same fields as above. `404 member_not_found` |
+| GET | `/x207/circles/{circle}/members/{account}/limits` | `cursor`, `limit` | `items`: `epoch`, `oldLimit`, `newLimit`, `status`, `reason`, `blockHeight` |
+| GET | `/x207/circles/{circle}/members/{account}/settlements` | `cursor`, `limit` | `items`: `epoch`, `phase`, `role`, `net`, `amount`, `status`, `claimableNow`, `destination`, `txHash` |
+| GET | `/x207/circles/{circle}/members/{account}/freeze` | | `account`, `state`, `frozen`, `eta`, `reasonHash`, `fromEpoch` |
+| GET | `/x207/circles/{circle}/freezes` | `state` (`pending`, `frozen`) | `items` of member freezes |
+| GET | `/x207/circles/{circle}/epochs` | `cursor`, `limit` | `items`: `epoch`, `phase`, `cutoffAt`, `closedAt`, `proposalDeadline`, `committedAt`, `paymentDeadline`, `finalizedAt`, `edgeCount`, `totalObligation`, `cleared`, `edgesUnavailable` |
+| GET | `/x207/circles/{circle}/epochs/{n}` | | Clearing report, see below |
+| GET | `/x207/circles/{circle}/epochs/{n}/metrics` | | `totalVoucherValue`, `voucherCount`, `debtBefore`, `graph` (`participants`, `edges`, `density`), `cleared`, `clearedRatio`, `residualTransfers`, `transferSavings`, `debtAfter`, `debtReduction`, `netDebt`, `defaultRate`, `clearingTimeSeconds` |
+| GET | `/x207/circles/{circle}/epochs/{n}/obligations` | `stage` (`cutoff` default, `live`, `cleared`) | `epoch`, `phase`, `stage`, `edgeCount`, `totalObligation`, `edges`. `cutoff` on a still open epoch gives `409 epoch_not_closed` |
+| GET | `/x207/circles/{circle}/epochs/{n}/settlements` | `cursor`, `limit` | `items` per member for the epoch |
+| GET | `/x207/circles/{circle}/events` | `event` (comma separated names), `cursor`, `limit` | `items`: `receiptId`, `logIndex`, `blockHeight`, `blockTimestampNs`, `txHash`, `event`, `data`; also `nextCursor` and `more` |
+| GET | `/x207/circles/{circle}/proposals` | `status` (`InProgress`, `Approved`, `Rejected`, `Removed`, `Expired`, `Moved`, `Failed`) | Governance proposals read from the DAO; `502` if the upstream does not answer |
+
+The settlements `status` filter takes `due`, `paid`, `defaulted`, `claimable`, `claimed`.
+
+### Clearing report: `207 Multi-Status`
+
+`GET /x207/circles/{circle}/epochs/{n}` returns a report that tells a payer which of its payments cleared. Header fields: `circle`, `network`, `epoch`, `phase`, `committed`, `finalized`, `unit`, `decimals`, `totalObligation`, `cleared`, `clearedRatio`, `committedAt`, `paymentDeadline`, and `members`.
+
+- The status is `207` once the epoch has been committed (`phase` is `payment_window` or `finalized`) and `members` lists each account with its net, amount, cleared share, status and due time.
+- An epoch that has not been committed answers `200` with `committed: false` and `members: []`.
+
+## Credit, intents and bundles
+
+| Method | Path | Query |
+| --- | --- | --- |
+| GET | `/x207/circles/{circle}/grants` | `status` (`offered`, `active`, `revoked`, `expired`), `grantor`, `grantee`, `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/grants/{grantId}` | |
+| GET | `/x207/circles/{circle}/intents/hashes` | `status` (`posted`, `removed`), `account`, `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/intents/withdrawals` | `cursor`, `limit`; answer has `totalWithdrawn`, `withdrawals`, `items` |
+| GET | `/x207/circles/{circle}/bundles` | `status` (`active`), `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/deals` | `state` (`open`, `disputed`, `closed`, `all`), `account`, `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/deals/{bundleId}` | |
+| GET | `/x207/circles/{circle}/asset-contracts` | |
+| GET | `/x207/circles/{circle}/account-escrows` | `state` |
+| GET | `/x207/circles/{circle}/account-escrows/{grantId}` | |
+
+## Marketplace books
+
+The marketplace is an off-chain book of signed listings, offers and orders. Reading it needs no signature.
+
+| Method | Path | Query |
+| --- | --- | --- |
+| GET | `/x207/circles/{circle}/listings` | `status` (`open`, `matched`, `cancelled`, `expired`, `all`), `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/listings/{hash}` | `hash` is 64 lowercase hex characters |
+| GET | `/x207/circles/{circle}/listings/{hash}/offers` | `status` (`pending`, `countered`, `accepted`, `closed`, `all`), `counterparty` |
+| GET | `/x207/circles/{circle}/listings/{hash}/delivery` | |
+| GET | `/x207/circles/{circle}/listings/{hash}/code-check` | |
+| GET | `/x207/circles/{circle}/intents` | `status` (`open`, `matched`, `expired`, `all`), `account`, `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/offers` | `account` (required), `box` (`inbox` default, `sent`), `status`, `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/referrals` | `account` (required), `box`, `status` (`pending`, `taken`, `refused`, `expired`, `all`), `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/bundle-proposals` | `status` (`proposed`, `ready`, `all`), `account` |
+| GET | `/x207/circles/{circle}/bundle-proposals/{termsHash}` | |
+| GET | `/x207/circles/{circle}/orders` | `party`, `status` (`proposed`, `open`, `closed`), `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/orders/{hash}` | |
+| GET | `/x207/circles/{circle}/orders/{hash}/onchain-proofs` | |
+| GET | `/x207/circles/{circle}/invoices` | `party`, `status` (`requested`, `approved`, `registered`, `rejected`, `expired`, `missed`), `cursor`, `limit` |
+| GET | `/x207/circles/{circle}/invoices/{hash}` | |
+| GET | `/x207/circles/{circle}/purchases/{id}` | |
+| GET | `/x207/circles/{circle}/transfers/{id}` | |
+| GET | `/x207/circles/{circle}/reputation` | `limit` |
+| GET | `/x207/circles/{circle}/reputation/{account}` | |
+| GET | `/x207/circles/{circle}/marketplace/stats` | |
+| GET | `/x207/circles/{circle}/marketplace/asset-classes` | |
+| GET | `/x207/circles/{circle}/marketplace/dao-registry` | |
+| GET | `/x207/circles/{circle}/marketplace/license-ids` | |
+| GET | `/x207/circles/{circle}/marketplace/exclusive-licenses` | `content_hash` |
+| GET | `/x207/circles/{circle}/marketplace/resources/stats` | `unit` |
+
+The OpenAPI document lists `401` (signature does not match) and `403` (not a party) for some detail routes (listings, orders, invoices, purchases, exclusive licenses). Check `docs/openapi.json` for the codes of a route you rely on.
+
+Reputation answers (`/reputation/{account}`) carry `score`, `completed`, `complaints`, `disputes`, `abandoned`, `invoices`, `completionRate`, `responseSeconds`, `spotChecks`, `resetAt`, `basis` and `formula`.
+
+## Writes: not on the public server
+
+The code also serves signed `POST` routes: listings, offers, orders, invoices, purchases, transfers, referrals, intents, bundle proposals, delivery, reputation spot checks, and the settlement worker (`/x207/settlement/...`). A write carries a signature from the voucher key of a circle member (`401 invalid_signature` when it does not match, `403 member_not_active` for a member that is not active). The settlement worker is dry by default and holds no signing key.
+
+On the public server `X207_READ_ONLY` is on, so none of these routes exists: they answer `404 not_found`, and the job monitor does not run. The exception is the faucet below. The routes and their error codes are in the OpenAPI document, which is generated from the router and checked by a test.
+
+## Test-funds faucet
+
+A new account needs NEAR for the join deposit (0.35 NEAR) and mock USDT for the stake. The faucet gives both in one call. Testnet only; the mock USDT is not a real asset.
+
+### `GET /x207/faucet`
+
+Reports whether it is on and its current limits:
+
+```json
+{
+  "enabled": true,
+  "near_yocto": "200000000000000000000000",
+  "usdt_amount": "300000000",
+  "usdt_contract": "usdt.x207-deployer.testnet",
+  "per_ip_per_day": 20,
+  "per_day": 200,
+  "remaining_today": 200
+}
+```
+
+That was the live answer on 2026-11-12. Read it for the current numbers rather than relying on this page. A server where the faucet is not configured has no route: `404 not_found`.
+
+### `POST /x207/faucet`
+
+Body (JSON object, no other field):
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `account_id` | string | Required. NEAR account id (lowercase, 2 to 64 characters) or a 64-hex implicit account |
+| `include_usdt` | boolean | Default `true`. `false` sends NEAR only |
+
+```bash
+curl -s -X POST https://v018.x207.boxd.sh/x207/faucet \
+  -H 'content-type: application/json' \
+  -d '{"account_id":"newbie.testnet"}'
+```
+
+`201` answer:
+
+```json
+{
+  "account_id": "newbie.testnet",
+  "near": { "amount_yocto": "...", "tx": "..." },
+  "usdt": { "contract": "usdt.x207-deployer.testnet", "amount": "...", "txs": ["...", "..."] }
+}
+```
+
+`usdt` is `null` when `include_usdt` is `false`. Amounts are strings in the smallest unit (yocto NEAR; the mock USDT has 6 decimals).
+
+| Status | Code | When |
+| --- | --- | --- |
+| 400 | `faucet_bad_account` | `account_id` missing or not an account id |
+| 400 | `invalid_request` | Body is not an object, unknown field, or `include_usdt` is not a boolean |
+| 404 | `faucet_account_not_found` | Named account does not exist (an implicit 64-hex account may not exist yet; the transfer creates it) |
+| 409 | `faucet_already_claimed` | The account has had a grant. One per account |
+| 409 | `faucet_already_funded` | The account already holds more than 1 NEAR |
+| 429 | `rate_limited` | `details.scope` is `faucet_ip` or `faucet_day`; header `Retry-After` |
+| 502 | `faucet_failed` | The network did not answer or the transfer failed; nothing was sent |
+| 502 | `faucet_partial` | The NEAR was sent but the USDT step failed; `details.near_tx` has the hash. Send the same request again to finish the USDT without sending NEAR twice |
+| 503 | `faucet_empty` | The faucet account is below its reserve |
+
+How it stays bounded: the faucet pays from its own small testnet account, never the deployer account. It refuses to start with a mainnet RPC or an account that does not end in `.testnet`. Limits (one grant per account, per address per rolling day, grants per rolling day) are reserved before any network call and kept in SQLite, so they survive a restart. It does not prove that the caller owns the account, and many accounts or addresses can drain the daily quota. That is the accepted cost of an open testnet faucet.
+
+## Error codes
+
+The generic codes are `invalid_request`, `not_found`, `rate_limited`, `payload_too_large`, `invalid_signature`, `circle_not_found`, `member_not_found`, `member_not_active`, `epoch_not_found`, `epoch_not_closed`, `indexer_unavailable`, `job_not_found`, `already_exists`, `listing_not_found`, `grant_not_found`, `delivery_not_found`, `offer_not_found`, `proposal_not_found`, `referral_not_found`, `deal_not_found`, `open_limit_reached`. Marketplace domains add their own codes (`invoice_*`, `order_*`, `purchase_*`, `transfer_*`, `code_*`, `account_*`, `faucet_*`). Each route lists what it can answer in `x-error-codes` of `docs/openapi.json`.
+
+## Source
+
+- [backend README](https://github.com/x207-labs/backend/blob/main/README.md)
+- [`docs/openapi.json`](https://github.com/x207-labs/backend/blob/main/docs/openapi.json)
+- [`docs/faucet.md`](https://github.com/x207-labs/backend/blob/main/docs/faucet.md)
+- [`src/api/server.ts`](https://github.com/x207-labs/backend/blob/main/src/api/server.ts)
+- [`src/api/router.ts`](https://github.com/x207-labs/backend/blob/main/src/api/router.ts)
+- [`src/api/errors.ts`](https://github.com/x207-labs/backend/blob/main/src/api/errors.ts)
+- [`src/api/pagination.ts`](https://github.com/x207-labs/backend/blob/main/src/api/pagination.ts)
+- [`src/api/abuse.ts`](https://github.com/x207-labs/backend/blob/main/src/api/abuse.ts)
+- [`src/report207/index.ts`](https://github.com/x207-labs/backend/blob/main/src/report207/index.ts)
+- [`src/api/routes/members.ts`](https://github.com/x207-labs/backend/blob/main/src/api/routes/members.ts)
+- [`src/api/routes/health.ts`](https://github.com/x207-labs/backend/blob/main/src/api/routes/health.ts)
+- [`src/api/routes/obligations.ts`](https://github.com/x207-labs/backend/blob/main/src/api/routes/obligations.ts)

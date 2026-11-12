@@ -1,0 +1,87 @@
+---
+title: View methods
+description: Every read-only method of the x207-circle contract (interface 0.0.18), with parameters and what it returns.
+---
+
+View methods change no state and cost no gas when called over RPC. Names are copied from `contracts/abi.json` (interface 0.0.18). Amounts are strings holding integers; one credit is 1,000,000 units. State-changing methods are in [Call methods](/docs/contracts/methods).
+
+List views take `from_index` and `limit`. A `limit` of 0, or a `from_index` past the end, returns an empty list.
+
+## Circle and parameters
+
+| View | Parameters | Returns |
+| --- | --- | --- |
+| `interface_version` | none | The interface version string (`0.0.18`). |
+| `get_circle` | none | `CircleConfig`: circle id, token, Intents contract, owner, and current params. |
+| `get_owner` | none | The owner account id. |
+| `get_params` | none | Params in force for the running epoch. |
+| `get_pending_params` | none | Params stored by `set_params` that apply from the next epoch, or `null`. |
+| `get_pool` | none | `PoolView`: `accounted`, `epoch_pools`, `in_flight`, `reserve`, `solver_fees`, `total_stake`. |
+| `get_upgrade` | none | `UpgradeView` (`code_hash`, `eta`) of a pending upgrade, or `null`. |
+| `get_max_escrow_ttl` | none | The longest account-escrow time to live, in nanoseconds. |
+| `get_pending_gc_delay` | none | The delay before anyone may remove a never-admitted `pending` member. |
+| `get_locker_code_hashes` | none | Official locker code hashes. |
+
+## Members
+
+| View | Parameters | Returns |
+| --- | --- | --- |
+| `member` | `account_id` | `MemberView` (status `pending`, `active`, `suspended` or `exited`, stake, limit, debt) or `null`. |
+| `list_members` | `from_index`, `limit` | A page of `MemberView`. |
+| `limit` | `account_id` | The member's credit limit. |
+| `headroom` | `account_id` | `max(0, limit - outstanding_debt - reserved bundle headroom)`. `"0"` for a member that is not `active`. |
+| `outstanding_debt` | `account_id` | The member's outstanding debt in the running epoch. |
+| `is_frozen` | `account_id` | Whether the member is frozen. |
+| `get_freeze` | `account_id` | `FreezeView` (state `pending` or `frozen`, `eta`) or `null`. |
+| `is_auto_settle` | `account_id` | Whether auto-settle from stake is on. |
+| `evm_signer` | `account_id` | `EvmSignerView` (`address`, `nonce`, `sponsor`) for an EVM member, or `null`. |
+| `bond_locked` | `account_id` | Stake currently locked as deal bonds. |
+| `solver_fee_balance` | `account_id` | Solver fee waiting for `claim_solver_fee`. |
+| `intents_balance` | none | Amount booked for `withdraw_intents_balance`. |
+
+## Epochs, obligations and clearing
+
+| View | Parameters | Returns |
+| --- | --- | --- |
+| `get_epoch` | `epoch` (or `null` for the current one) | `EpochView`: phase (`open`, `cutoff`, `clearing`, `commit`, `payment_window`, `finalized`), deadlines and totals. |
+| `last_seq` | `payer`, `payee`, `epoch` | Last accepted `seq` for the pair in that epoch. |
+| `obligation` | `epoch`, `debtor`, `creditor` | `ObligationView` for the pair, or `null`. |
+| `list_obligations` | `epoch`, `from_index`, `limit` | A page of `ObligationView`. |
+| `get_clearing_proposal` | `epoch` | The stored best proposal summary, including the solver and `cleared_total`, or `null`. |
+| `get_proposal` | `epoch`, `from_index`, `limit` | A page of the stored proposal's edges with its `proposal_hash`. |
+| `simulate_clearing` | `epoch`, `edges` | `SimulationResult`: `valid`, `cleared_total`, `edge_count`, `better_than_current`, `reason`. Checks a proposal as `submit_clearing` would, without storing it. |
+| `net_position` | `epoch`, `account_id` | `PositionView` (status `due`, `paid`, `defaulted`, `claimable`, `claimed`), or `null` for a net-zero member, an unknown member or an epoch that is not committed. |
+| `list_positions` | `epoch`, `from_index`, `limit` | A page of `PositionView`. |
+
+## Barter and deals
+
+| View | Parameters | Returns |
+| --- | --- | --- |
+| `get_intent` | `intent_hash` | `IntentView` or `null`. |
+| `get_bundle` | `bundle_id` | `BundleView` or `null`. |
+| `get_deal` | `bundle_id` | `DealView` (state `open` or `disputed`) or `null`. |
+
+## Grants, escrow and asset classes
+
+| View | Parameters | Returns |
+| --- | --- | --- |
+| `get_grant` | `grant_id` | `AccessGrant` (status `offered`, `active`, `revoked` or `expired`) or `null`. |
+| `grants_of` | `account_id`, `role`, `from_index`, `limit` | A page of grants where the account has the given role. |
+| `get_escrow` | `grant_id` | The NFT escrow of a class A grant, or `null`. |
+| `get_ft_escrow` | `grant_id` | The fungible-token escrow, or `null`. |
+| `get_mt_escrow` | `grant_id` | The multi-token escrow, or `null`. |
+| `get_account_escrow` | `grant_id` | The account escrow (locker), or `null`. |
+| `get_asset_class` | `asset_type` | `AssetClassEntry` or `null`. |
+| `list_asset_classes` | none | All registered asset classes. |
+| `get_asset_contracts` | `asset_type` | Official token contracts of a class A asset type. |
+
+An escrow reports one of `held`, `completing`, `cancelling`, `delivered`, `cancelled` or `stuck`. Reading `stuck` means the asset transfer failed and the contract has no rescue method (see [Security and limits](/docs/security)).
+
+## Source
+
+- https://github.com/x207-labs/contracts/blob/main/abi.json
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/lib.rs
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/member.rs
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/clearing.rs
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/risk.rs
+- https://github.com/x207-labs/contracts/blob/main/x207-circle/src/types.rs

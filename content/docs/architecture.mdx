@@ -1,0 +1,93 @@
+---
+title: Architecture
+description: The components of x207, how they connect, and how one voucher travels from a paid call to a creditor's claim.
+---
+
+x207 is a settlement layer. The contract is the only place where a circle is true. Every other component reads it, calls it, or helps someone use it. Anyone can replace the solver, the keeper and the facilitator; none of them holds funds.
+
+> Testnet only. No mainnet deploy has been made. See [Deployments](/docs/deployments) and [Security and limits](/docs/security).
+
+## Components
+
+```text
+                    x402 call (HTTP 402 / PAYMENT-SIGNATURE)
+   Buyer agent  <------------------------------------------>  Seller agent
+        |                                                          |
+        | uses @x207/scheme (client)                               | uses @x207/scheme (server)
+        |                                                          v
+        |                                                    Facilitator
+        |                                              /verify  /settle  /supported
+        |                                                          |
+        |                                         register_cumulative (signed voucher)
+        v                                                          v
+   +-------------------------------------------------------------------------+
+   |                  x207-circle contract  (NEAR)                           |
+   |  members, stakes, vouchers, obligations, clearing check, positions,     |
+   |  claims, defaults, params, freeze, upgrade                              |
+   +--------+----------------------------+-------------------------+---------+
+            | NEP-297 events             ^ submit_clearing         ^ close_epoch, commit_epoch,
+            v                            |                         | finalize_epoch, prune_epoch
+   Backend: indexer --> SQLite     Solver (reads read API,         Keeper (anyone)
+   read model --> read API,        computes cycles, submits)
+   HTTP 207 report, marketplace,
+   access broker
+            |
+            +--> Frontend dashboard (polls the read API, reads RPC views)
+            +--> Solver (obligation graph)
+            +--> Agents (read state)
+            +--> MCP server (read tools)
+```
+
+| Component | Repo | What it is |
+| --- | --- | --- |
+| Contracts | `contracts` | The `x207-circle` contract, the account-sale `locker`, DAO helper scripts, tests, mocks. See [Contracts](/docs/contracts). |
+| SDK | `sdk` | TypeScript packages: `@x207/core` (voucher signing, contract client, event parser, `onboardMember`), `@x207/scheme` (x402 `batch-settlement` binding for client, server and facilitator), `@x207/mcp` (MCP server, read tools by default, signs nothing), and a reference facilitator. See [SDK](/docs/sdk). |
+| Backend | `backend` | Indexer that turns contract events into a SQLite read model, the read API, the HTTP `207` report, the settlement worker, the marketplace book and the access broker. See [Read API](/docs/read-api). |
+| Frontend | `frontend` | The dashboard: clearing pages, account pages (onboarding, settlement; need a wallet), marketplace pages. Polls the read API every 5 seconds and reads testnet RPC views. See [Dashboard](/docs/dashboard). |
+| Solver | `solver` | Open clearing solver: reads the frozen obligation graph, computes the largest cycle-only clearing with min-cost flow, submits it. Also the barter matching (`x207-barter`). See [Solver](/docs/solver). |
+| Agents | `agents` | Six demo agents (translate, summarize, scrape, image, clean, compute) that sell behind an x402 paywall and buy from each other with signed vouchers. See [Agents](/docs/agents). |
+
+## Layers
+
+The system has seven layers, from the agent to the observer.
+
+| Layer | Job | Where |
+| --- | --- | --- |
+| Agent interaction | The x402 exchange between buyer and seller | SDK, agents |
+| Commitment | Signed cumulative vouchers | SDK, contract |
+| Accounting | Pair obligations and per-member debt against the limit | Contract |
+| Clearing | Cancel cycles of debt, checked on chain | Solver, contract |
+| Settlement | Residual paid in USDT, claims | Contract, backend worker |
+| Risk and governance | Stake, limits, freeze, upgrade, DAO owner | Contract |
+| Observability | Events to read model, dashboard, report | Backend, frontend |
+
+## Data flow: a voucher to a settlement
+
+1. **Request.** A buyer calls a seller's endpoint. The seller answers `402 PAYMENT-REQUIRED` with an x402 v2 offer: `x207` `batch-settlement` next to `exact`.
+2. **Voucher.** The buyer retries with `PAYMENT-SIGNATURE`: an ed25519-signed cumulative voucher (fields `circle`, `payer`, `payee`, `resource`, `unit`, `epoch`, `seq`, `cumulativeAmount`). See [Vouchers](/docs/concepts/vouchers) and [x402 scheme](/docs/concepts/x402-scheme).
+3. **Serve.** The seller asks the facilitator `/verify`. When it is valid the seller serves the call at once and returns `PAYMENT-RESPONSE`. Registering on chain happens after.
+4. **Register.** The facilitator calls `register_cumulative`. The contract checks both parties are `active`, the voucher is inside the epoch before the cutoff, and the payer's debt stays within its limit.
+5. **Close.** After the epoch length, anyone calls `close_epoch`. The obligation graph is frozen and the proposal window opens.
+6. **Clear.** Any solver reads the graph from the read API and calls `submit_clearing` with edges. The contract checks them in one pass and keeps the proposal with the largest `cleared_total`. See [Epochs and clearing](/docs/concepts/epochs-and-clearing).
+7. **Commit.** After the proposal window, anyone calls `commit_epoch`. Each member gets a net position: `due` for a net debtor, `claimable` for a net creditor.
+8. **Pay.** Net debtors pay their residual in USDT during the payment window, by `ft_transfer_call` with `{"action":"settle"}` or from Intents (`mt_on_transfer`). A member with auto-settle on is paid from stake. See [Residual and settlement](/docs/concepts/residual-and-settlement).
+9. **Finalize.** After the payment window, anyone calls `finalize_epoch`. A debtor still `due` defaults: its stake covers it, then the reserve. Limits are recomputed.
+10. **Claim.** Creditors call `claim` for USDT on their NEAR account or in their Intents balance.
+11. **Observe.** The indexer reads NEP-297 events into the read model. The dashboard, the read API, the `207` report and the MCP server read from it.
+
+## Where trust sits
+
+- The contract holds stake and pays claims. A solver's proposal changes nothing unless the contract's check passes: no edge clears more than is owed, and every member's cleared inflow equals its outflow.
+- A voucher signature is the only gate for registration, so any account can submit one.
+- The facilitator, solver, keeper and indexer can be run by anyone. The deployed ones are run by the x207 team on testnet.
+- The read API and dashboard are views of chain state. The contract is the source of truth.
+
+## Source
+
+- https://github.com/x207-labs/x207/blob/main/docs/architecture.md
+- https://github.com/x207-labs/sdk/blob/main/README.md
+- https://github.com/x207-labs/backend/blob/main/README.md
+- https://github.com/x207-labs/frontend/blob/main/README.md
+- https://github.com/x207-labs/solver/blob/main/README.md
+- https://github.com/x207-labs/agents/blob/main/README.md
+- https://github.com/x207-labs/contracts/blob/main/README.md

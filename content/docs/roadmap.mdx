@@ -1,0 +1,52 @@
+---
+title: Roadmap
+description: What x207 has built on testnet and what is planned, including USDC. Nothing under Planned is built.
+---
+
+<Callout type="warn">
+Everything under Planned is not built. Dates are not promised.
+</Callout>
+
+## Built (testnet)
+
+- Circle contract with stake, vouchers, epochs, cycle clearing, residual payment, claim and default handling.
+- Facilitator and read API, 207 report, faucet, hosted read-only MCP server.
+- Dashboard at [x207.vercel.app](https://x207.vercel.app).
+- Opt-in auto-settle from stake.
+
+## Planned
+
+### USDC
+
+The settlement token is mock USDT on testnet, with `usdt.tether-token.near` as the mainnet target. The plan is native Circle USDC (6 decimals). A circle's token is fixed at `new`, so the move means a new circle with `usdt_token_id` set to USDC, and members stake again. The field `usdt_token_id` and the error `ERR_ESCROW_USDT` keep their names. It also needs SDK config, a backend Intents asset `nep141:<usdc>`, faucet changes and the new contract id in the dashboard. Status: not started, planned after the hackathon.
+
+### Mainnet
+
+A deploy checklist and runbook exist. Nothing has been run. It needs explicit owner approval.
+
+### Circles
+
+- Multiple circles and clearing across circles.
+- Credit above stake, backed by a reserve fund and a haircut to creditors.
+- Confidential settlement through Confidential Intents.
+
+### Clearing
+
+- A path-based solver, which needs a new contract proof rule.
+- Clearing spanning several transactions, to lift the 300-edge limit of `submit_clearing`.
+- Registering many pairs in one transaction.
+- Keeper reward and solver fee incentives. The fee parameters exist and default to 0.
+
+### Ecosystem
+
+- Upstream acceptance of the x402 scheme (proposal x402-foundation/x402#4131, open).
+- Barter and marketplace features with real counterparties, real delivery of asset classes, and a book run by more than one operator. Today these have sandbox or limited evidence only.
+- Evaluation of optional NEAR resources. This is evaluation, not a plan.
+
+## Source
+
+- [README.md](https://github.com/x207-labs/x207/blob/main/README.md)
+- [docs/metrics-and-roadmap.md](https://github.com/x207-labs/x207/blob/main/docs/metrics-and-roadmap.md)
+- [docs/roadmap-resources.md](https://github.com/x207-labs/x207/blob/main/docs/roadmap-resources.md)
+- [docs/barter-evidence.md](https://github.com/x207-labs/x207/blob/main/docs/barter-evidence.md)
+- [docs/security-and-limits.md](https://github.com/x207-labs/x207/blob/main/docs/security-and-limits.md)
