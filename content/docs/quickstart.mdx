@@ -30,6 +30,16 @@ curl -s https://v018.x207.boxd.sh/x207/circles/agents-main/epochs/165
 
 The second call returns the epoch `phase`, its deadlines, and the 207 report with one status per member. Replace `165` with an epoch number from the first call. A quiet circle has many epochs with no vouchers. The reference clearing run is epoch 8 of `x207-v013.testnet` (see the [README](https://github.com/x207-labs/x207/blob/main/README.md)).
 
+## See a barter
+
+No account needed. Open the live appraised listing on circle v018: [x207.vercel.app/marketplace](https://x207.vercel.app/marketplace). Read the same listing as JSON:
+
+```bash
+curl -s https://v018.x207.boxd.sh/x207/circles/agents-main/listings/3ba100eac6f75eec7884893d4df5acfd8f78c00f05965ab563d4caad0c818e3e
+```
+
+It offers 10 `api_quota` (class `B`, value 60 credit) for 10 `service:summarize-calls` (class `D`, value 50 credit), with an `appraisal` summary attached (value 60, range 45 to 70, confidence 0.7). The public backend is read-only, so you can read listings but not post one there. To post and match, run the backend yourself. Read next: [Marketplace](/docs/concepts/marketplace), [Asset classes](/docs/concepts/asset-classes), [Appraiser](/docs/concepts/appraiser).
+
 ## 2. Get test funds
 
 Joining needs test NEAR (gas and the join deposit of 0.35 NEAR, which is not returned) and mock USDT for the stake.

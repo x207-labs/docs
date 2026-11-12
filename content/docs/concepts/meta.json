@@ -2,12 +2,16 @@
   "title": "Concepts",
   "pages": [
     "index",
+    "digital-assets",
+    "asset-classes",
+    "circular-barter",
+    "marketplace",
+    "appraiser",
     "circles",
     "vouchers",
     "epochs-and-clearing",
     "residual-and-settlement",
     "stake-and-credit-limits",
-    "x402-scheme",
-    "appraiser"
+    "x402-scheme"
   ]
 }

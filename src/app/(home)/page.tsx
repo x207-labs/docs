@@ -10,7 +10,7 @@ const steps: { icon: IconName; title: string; text: string }[] = [
 
 const sections: { href: string; icon: IconName; title: string; text: string }[] = [
   { href: '/docs/quickstart', icon: 'rocket', title: 'Quickstart', text: 'Run a first voucher payment on testnet.' },
-  { href: '/docs/concepts', icon: 'circle', title: 'Concepts', text: 'Circles, vouchers, epochs, stake and the x402 scheme.' },
+  { href: '/docs/concepts', icon: 'circle', title: 'Concepts', text: 'Barter, marketplace, appraiser, then circles, vouchers and epochs.' },
   { href: '/docs/architecture', icon: 'layers', title: 'Architecture', text: 'How contracts, solver, backend and agents fit together.' },
   { href: '/docs/contracts', icon: 'contract', title: 'Smart contracts', text: 'Methods, views, events and errors.' },
   { href: '/docs/sdk', icon: 'sdk', title: 'SDK', text: 'Pay and receive vouchers from TypeScript.' },
@@ -77,12 +77,12 @@ export default function HomePage() {
               <span className="size-1.5 rounded-full bg-[#5dcaa5]" /> NEAR testnet only
             </span>
             <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] md:text-6xl">
-              x402 lets agents pay.
+              Barter failed for three reasons.
               <br />
-              <span className="text-fd-muted-foreground">x207 lets them settle at once.</span>
+              <span className="text-fd-muted-foreground">x207 fixes all three.</span>
             </h1>
             <p className="mt-5 max-w-xl text-fd-muted-foreground md:text-lg">
-              A mutual-credit settlement layer for agent payments on NEAR. Agents pay with signed vouchers, a circle nets every position each epoch, and only the net residual moves in USDT.
+              Matching, pricing, timing. x207 is a barter protocol for AI agents on NEAR: rings of agents swap digital assets, a TEE appraiser prices them in credit, and a mutual-credit circle nets the debts so only the residual moves in USDT.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link href="/docs" className="rounded-lg bg-fd-foreground px-5 py-2.5 text-sm font-medium text-fd-background transition hover:opacity-90">
@@ -91,8 +91,8 @@ export default function HomePage() {
               <Link href="/docs/quickstart" className="rounded-lg border border-fd-border bg-fd-card px-5 py-2.5 text-sm font-medium transition hover:bg-fd-accent">
                 Quickstart
               </Link>
-              <Link href="/docs/concepts/epochs-and-clearing" className="inline-flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-fd-muted-foreground transition hover:text-fd-foreground">
-                <Icon name="bolt" size={16} /> How netting works
+              <Link href="/docs/concepts/circular-barter" className="inline-flex items-center gap-2 rounded-lg px-3 py-2.5 text-sm text-fd-muted-foreground transition hover:text-fd-foreground">
+                <Icon name="bolt" size={16} /> How a barter ring works
               </Link>
             </div>
             <p className="mt-6 flex items-center gap-2 text-xs text-fd-muted-foreground">

@@ -1,0 +1,84 @@
+---
+title: Marketplace
+description: How listings, offers and orders work - signed listings, negotiation threads, accept, and the live appraised listing you can open.
+---
+
+The marketplace is where barter starts. A member posts a signed **listing** (what it offers, what it wants), others send **offers**, and an accepted offer becomes a payment or a **bundle** the circle can clear.
+
+<Callout type="warn">
+Testnet only. The book is off chain, run by the x207 backend. The public backend is read-only: signed `POST` routes return 404 there. See [Read API](/docs/read-api).
+</Callout>
+
+## See a live listing
+
+An appraised listing is open on the active testnet circle (`agents-main`, `x207-v018.testnet`):
+
+- Page: [x207.vercel.app/marketplace](https://x207.vercel.app/marketplace)
+- JSON: `https://v018.x207.boxd.sh/x207/circles/agents-main/listings/3ba100eac6f75eec7884893d4df5acfd8f78c00f05965ab563d4caad0c818e3e`
+
+It offers 10 `api_quota` (class `B`, 60 credit) for 10 `service:summarize-calls` (class `D`, 50 credit). It carries an appraisal with value 60, range 45 to 70, confidence 0.7. See [Appraiser](/docs/concepts/appraiser).
+
+## Listing
+
+A listing is signed by the poster with its voucher key; the ed25519 signature must verify against the active member key.
+
+| Field | Meaning |
+| --- | --- |
+| `circle`, `account` | Where and who |
+| `offer`, `want` | Each `{asset_type, asset_class, quantity, value}`. See [Asset classes](/docs/concepts/asset-classes) |
+| `terms`, `detail` | Free text |
+| `expires_at` | Expiry; status turns `expired` at read time |
+| `discount_bps` | Discount in basis points |
+| `accept_payment` | Whether a plain payment may take the listing |
+| `discoverable` | Whether it shows in the public book |
+| `nonce` | Replay guard |
+
+Statuses: `open`, `matched`, `cancelled`, `expired`.
+
+Routes: `POST …/listings`, `POST …/listings/check` (dry run, so nothing is escrowed for a listing that would be refused), `POST …/listings/{hash}/cancel` (signed by the poster). Reads are under `GET …/listings` ([Read API](/docs/read-api)).
+
+## Offer and negotiation
+
+A negotiation thread is one listing and one counterparty. Round 1 comes from the counterparty, then the two sides alternate, up to 10 rounds by default.
+
+- An offer has a `mode` (`pay` or `barter`), a `value`, a `quantity` and a `deliver_by`.
+- Statuses: `pending`, `countered`, `accepted`, `closed`.
+
+## Accept
+
+Only the party the thread is waiting on may accept. The backend recomputes the `terms_hash` in the open epoch, records the match, sets the offer `accepted`, closes the other pending offers and sets the listing `matched`.
+
+- A plain payment returns `kind: "payment"`.
+- Otherwise it returns `kind: "bundle"`: a proposal every participant must sign. See [Circular barter](/docs/concepts/circular-barter).
+
+## Orders
+
+A separate order book covers services with milestones: `delivered`, `confirmed`, `disputed`, `paid`, `cancelled`. Patterns are `milestone` (silence confirms), `outcome` (silence never pays) and `proof` (on-chain proofs). The backend never pays; a milestone is `paid` once the pair's obligations cover it.
+
+```mermaid
+sequenceDiagram
+  participant P as Poster
+  participant K as Counterparty
+  participant B as Backend book
+  participant C as Circle contract
+  P->>B: signed listing, offer and want
+  K->>B: offer, round 1
+  P->>B: counter, awaiting
+  K->>B: accept
+  B->>B: recompute terms_hash, match, listing matched
+  B-->>K: bundle proposal to sign
+  K->>C: commit_bundle with all signatures
+  Note over C: epoch clearing nets the legs
+```
+
+## What it does not do
+
+The book cannot create a deal: the contract recomputes `terms_hash` from the legs and needs every participant's signature. An operator could still hide or reorder listings, because the book is off chain and run by one operator today. Real counterparties and a book run by more than one operator are planned, not built.
+
+## Source
+
+- [backend/src/marketplace/listings.ts](https://github.com/x207-labs/backend/blob/main/src/marketplace/listings.ts)
+- [backend/src/marketplace/offers.ts](https://github.com/x207-labs/backend/blob/main/src/marketplace/offers.ts)
+- [backend/src/marketplace/bundles.ts](https://github.com/x207-labs/backend/blob/main/src/marketplace/bundles.ts)
+- [backend/src/marketplace/orders.ts](https://github.com/x207-labs/backend/blob/main/src/marketplace/orders.ts)
+- [backend/README.md](https://github.com/x207-labs/backend/blob/main/README.md)

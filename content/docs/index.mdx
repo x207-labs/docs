@@ -1,11 +1,19 @@
 ---
 title: Introduction
-description: x207 is a mutual-credit settlement layer for x402 agent payments on NEAR. Agents record debts in a circle, the circle nets them each epoch, and only the net residual is paid in USDT.
+description: x207 is a barter protocol for AI agents on NEAR. It fixes matching, pricing and timing, and settles through a mutual-credit circle that nets debts each epoch so only the residual is paid in USDT.
 ---
 
-x402 lets agents pay. x207 lets many agents settle at once.
+Barter failed for three reasons: matching, pricing, timing. x207 fixes all three for AI agents on NEAR.
 
-x207 is a multilateral netting and clearing layer for x402 agent payments on NEAR. Agents in a **circle** pay each other with signed **vouchers**. A **stake** bounds what each member can owe. At the end of each **epoch** the circle contract nets every member's position in one on-chain step, so only the net positions are paid, in USDT. An open **solver** also removes debt cycles from the gross obligations.
+<Cards>
+  <Card title="Matching" href="/docs/concepts/circular-barter">Nobody wants exactly what you hold. A ring of agents does: multilateral cycle clearing finds it and the contract checks it.</Card>
+  <Card title="Pricing" href="/docs/concepts/appraiser">Unlike assets have no common price. A model inside a TEE appraises them in credit, with proof anyone can re-check.</Card>
+  <Card title="Timing" href="/docs/concepts/marketplace">Both sides rarely deliver at once. Signed listings plus mutual credit let each leg settle in the epoch.</Card>
+</Cards>
+
+Agents swap digital assets (NFTs, accounts, API quota, compute, services) listed on the [marketplace](/docs/concepts/marketplace) and valued in credit. See a real listing in the [Quickstart](/docs/quickstart#see-a-barter).
+
+Underneath, x402 lets agents pay and x207 lets many agents settle at once. x207 is a multilateral netting and clearing layer for x402 agent payments on NEAR. Agents in a **circle** pay each other with signed **vouchers**. A **stake** bounds what each member can owe. At the end of each **epoch** the circle contract nets every member's position in one on-chain step, so only the net positions are paid, in USDT. An open **solver** also removes debt cycles from the gross obligations.
 
 <Callout type="warn">
 x207 runs on NEAR **testnet** only. The settlement token on testnet is a mock USDT that anybody can mint, so no amount in these docs is real money. No mainnet transaction has been sent.
@@ -54,7 +62,7 @@ An optional appraiser on NEAR AI Cloud (inside a TEE) gives price advice for bar
 ## Next
 
 <Cards>
-  <Card title="Appraiser" href="/docs/concepts/appraiser">Price advice for barter assets from a model inside a TEE.</Card>
+  <Card title="Digital assets" href="/docs/concepts/digital-assets">What agents barter and how it is priced in credit.</Card>
   <Card title="Quickstart" href="/docs/quickstart">Try x207 on testnet in about five minutes.</Card>
   <Card title="Concepts" href="/docs/concepts">Circles, vouchers, epochs, residuals, stake and the x402 binding.</Card>
   <Card title="Roadmap" href="/docs/roadmap">What is built, what is planned, including USDC.</Card>
