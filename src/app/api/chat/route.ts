@@ -138,7 +138,12 @@ export async function POST(req: Request) {
   return createUIMessageStreamResponse({
     stream: toUIMessageStream({
       stream: result.stream,
-      onError: () => 'The AI assistant is temporarily unavailable. Please try again later.',
+      onError: (error) => {
+        // Status and message only: never the request, headers or key.
+        const e = error as { statusCode?: number; message?: string };
+        console.error('chat upstream error', e?.statusCode ?? '', String(e?.message ?? '').slice(0, 200));
+        return 'The AI assistant is temporarily unavailable. Please try again later.';
+      },
     }),
   });
 }
