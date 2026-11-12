@@ -2,31 +2,31 @@
 @import 'fumadocs-ui/css/neutral.css';
 @import 'fumadocs-ui/css/preset.css';
 
-/* x207 docs theme, same as the landing page: near-black surfaces, white ink, blue only on objects
-   (links, icons, diagram strokes, small buttons), never as a background wash. */
+/* Docs theme copied from the Orca docs (orca.dev/docs): Inter + JetBrains Mono, near-black #08090a,
+   white-alpha borders and fills, 12px radius, white primary button. Dark first. */
 :root {
-  --x207-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', var(--font-geist), 'Helvetica Neue', system-ui, sans-serif;
-  --x207-code: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, var(--font-geist-mono), monospace;
+  --x207-sans: var(--font-inter), Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  --x207-code: var(--font-jetbrains), 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
 
-  --color-fd-background: #fafafa;
-  --color-fd-foreground: #0a0a0a;
-  --color-fd-card: #ffffff;
-  --color-fd-card-foreground: #0a0a0a;
+  --color-fd-background: #ffffff;
+  --color-fd-foreground: #08090a;
+  --color-fd-card: #fafafa;
+  --color-fd-card-foreground: #08090a;
   --color-fd-popover: #ffffff;
-  --color-fd-popover-foreground: #0a0a0a;
-  --color-fd-muted: #f0f0f1;
+  --color-fd-popover-foreground: #08090a;
+  --color-fd-muted: #f2f2f3;
   --color-fd-muted-foreground: #5f6168;
-  --color-fd-secondary: #f0f0f1;
-  --color-fd-secondary-foreground: #0a0a0a;
-  --color-fd-accent: #ececee;
-  --color-fd-accent-foreground: #0a0a0a;
+  --color-fd-secondary: #f2f2f3;
+  --color-fd-secondary-foreground: #08090a;
+  --color-fd-accent: #00000010;
+  --color-fd-accent-foreground: #08090a;
   --color-fd-border: rgb(0 0 0 / 0.1);
-  --color-fd-primary: #0a6ee0;
-  --color-fd-primary-foreground: #ffffff;
-  --color-fd-ring: #0a84ff;
+  --color-fd-primary: #08090a;
+  --color-fd-primary-foreground: #f7f8f8;
+  --color-fd-ring: #8c8c8c;
 
   --pele-bg: transparent;
-  --pele-fg: #0a0a0a;
+  --pele-fg: #08090a;
   --pele-surface: #f4f4f5;
   --pele-accent: #0a6ee0;
   --pele-line: #71717a;
@@ -39,43 +39,43 @@
   --pele-series-5: #6d4fd0;
   --pele-series-6: #cc3f66;
   --pele-series-7: #71717a;
-  --pele-series-8: #0a0a0a;
+  --pele-series-8: #08090a;
   --pele-font: var(--x207-sans);
 }
 
 .dark {
-  --color-fd-background: #0a0a0a;
-  --color-fd-foreground: #fafafa;
-  --color-fd-card: #141414;
-  --color-fd-card-foreground: #fafafa;
-  --color-fd-popover: #141414;
-  --color-fd-popover-foreground: #fafafa;
-  --color-fd-muted: #1c1c1c;
-  --color-fd-muted-foreground: #a1a1aa;
-  --color-fd-secondary: #1c1c1c;
-  --color-fd-secondary-foreground: #fafafa;
-  --color-fd-accent: #1c1c1c;
-  --color-fd-accent-foreground: #fafafa;
-  --color-fd-border: rgb(255 255 255 / 0.09);
-  --color-fd-primary: #0a84ff;
-  --color-fd-primary-foreground: #ffffff;
-  --color-fd-ring: #0a84ff;
+  --color-fd-background: #08090a;
+  --color-fd-foreground: #f7f8f8;
+  --color-fd-card: #0e0f11;
+  --color-fd-card-foreground: #f7f8f8;
+  --color-fd-popover: #141517;
+  --color-fd-popover-foreground: #f7f8f8;
+  --color-fd-muted: #1a1b1e;
+  --color-fd-muted-foreground: #8a8f98;
+  --color-fd-secondary: #1a1b1e;
+  --color-fd-secondary-foreground: #f7f8f8;
+  --color-fd-accent: #fafafa1a;
+  --color-fd-accent-foreground: #f7f8f8;
+  --color-fd-border: #ffffff14;
+  --color-fd-primary: #f7f8f8;
+  --color-fd-primary-foreground: #08090a;
+  --color-fd-ring: #ffffff59;
 
   --pele-bg: transparent;
-  --pele-fg: #fafafa;
-  --pele-surface: #1c1c1c;
+  --pele-fg: #f7f8f8;
+  --pele-surface: #141517;
   --pele-accent: #0a84ff;
-  --pele-line: #8a8a93;
-  --pele-border: #3a3a42;
-  --pele-muted: #a1a1aa;
+  --pele-line: #8a8f98;
+  --pele-border: #2a2b30;
+  --pele-muted: #8a8f98;
   --pele-series-1: #0a84ff;
   --pele-series-2: #5dcaa5;
   --pele-series-3: #f5a524;
   --pele-series-4: #5ac8fa;
   --pele-series-5: #a58bff;
   --pele-series-6: #ff7a9c;
-  --pele-series-7: #8a8a93;
-  --pele-series-8: #fafafa;
+  --pele-series-7: #8a8f98;
+  --pele-series-8: #f7f8f8;
 }
 
 @theme inline {
@@ -96,25 +96,149 @@ body {
   font-family: var(--x207-sans);
 }
 
-/* Landing-style headings: tight tracking, semibold. */
+/* ---------- Orca-style docs chrome ---------- */
+
+/* Top bar: 64px fixed, transparent. Docs layout offsets sidebar and page by --fd-banner-height. */
+@media (min-width: 768px) {
+  :root {
+    --fd-banner-height: 64px;
+  }
+}
+.x207-topbar {
+  background: transparent;
+}
+/* Desktop: the layout's own title row in the sidebar is replaced by the top bar. */
+#nd-sidebar > div:first-child a[href='/'] {
+  display: none;
+}
+
+/* Sidebar: 268px, 1px hairline on the right, rounded 12px items, 14px text. */
+#nd-sidebar {
+  background: transparent;
+  border-right: 1px solid rgb(128 128 128 / 0.14);
+  font-size: 14px;
+}
+#nd-sidebar a,
+#nd-sidebar button[data-state] {
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--color-fd-muted-foreground);
+}
+#nd-sidebar a[data-active='true'] {
+  background: var(--color-fd-accent);
+  color: var(--color-fd-foreground);
+}
+#nd-sidebar a:hover:not([data-active='true']),
+#nd-sidebar button[data-state]:hover {
+  background: rgb(128 128 128 / 0.1);
+}
+/* Search box in the sidebar. */
+#nd-sidebar button[data-search-full],
+#nd-sidebar button[aria-label*='earch'] {
+  border-radius: 8px;
+  font-size: 13px;
+  background: rgb(128 128 128 / 0.07);
+  border: 1px solid rgb(128 128 128 / 0.2);
+}
+
+/* Page body: no table of contents column, centered 756px column. */
+#nd-toc,
+[data-toc-popover],
+#nd-tocnav {
+  display: none !important;
+}
+#nd-page article {
+  max-width: 756px;
+}
 #nd-page h1,
 .prose h1 {
-  letter-spacing: -0.035em;
-  font-weight: 650;
+  font-size: 36px;
+  line-height: 40px;
+  letter-spacing: -0.9px;
+  font-weight: 700;
 }
-
-.prose h2,
-.prose h3 {
-  letter-spacing: -0.025em;
+#nd-page h1 + p {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--color-fd-muted-foreground);
+}
+.prose {
+  font-size: 15px;
+  line-height: 1.625;
+  color: color-mix(in srgb, var(--color-fd-foreground) 70%, transparent);
+}
+.prose h2 {
+  margin-top: 40px;
+  font-size: 20px;
+  line-height: 28px;
+  letter-spacing: -0.5px;
   font-weight: 600;
+  color: var(--color-fd-foreground);
+}
+.prose h3 {
+  margin-top: 28px;
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: 600;
+  color: color-mix(in srgb, var(--color-fd-foreground) 90%, transparent);
+}
+.prose a:not([data-card]) {
+  color: var(--color-fd-foreground);
+  font-weight: 400;
+  text-decoration-color: rgb(128 128 128 / 0.5);
+  text-underline-offset: 3px;
+}
+.prose strong {
+  color: var(--color-fd-foreground);
 }
 
-/* Diagrams: let the pele svg scale down on narrow screens. */
+/* Inline code and code blocks. */
+.prose :not(pre) > code {
+  font-family: var(--x207-code);
+  font-size: 13px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background: rgb(128 128 128 / 0.14);
+  border: 1px solid rgb(128 128 128 / 0.16);
+  color: var(--color-fd-foreground);
+}
+figure.shiki,
+.prose pre {
+  font-family: var(--x207-code);
+  font-size: 13px;
+  border-radius: 12px;
+  background: rgb(128 128 128 / 0.07);
+  border: 1px solid rgb(128 128 128 / 0.16);
+  box-shadow: none;
+}
+
+/* Tables: no outer box, hairline rows. */
+.prose table {
+  font-size: 14px;
+}
+.prose th {
+  font-weight: 600;
+  color: var(--color-fd-foreground);
+}
+
+/* Figures / diagrams: 12px card with hairline border and a muted caption. */
+.x207-diagram {
+  border: 1px solid rgb(128 128 128 / 0.16);
+  background: rgb(128 128 128 / 0.04);
+  border-radius: 12px;
+  padding: 16px;
+}
 .x207-diagram svg {
   display: block;
   max-width: 100%;
   height: auto;
   margin-inline: auto;
+}
+
+/* Previous / next cards at the bottom of a page. */
+#nd-page a[class*='rounded-xl'][class*='border'] {
+  border-radius: 12px;
 }
 
 /* Landing */
