@@ -61,6 +61,8 @@ flowchart TB
   BE --> MCP["MCP server, read tools"]
 ```
 
+The backend also hosts an optional appraiser: `POST /x207/appraise` asks a model on NEAR AI Cloud (inside a TEE) for a value in credit for a barter asset and stores proof. It is advice only; no contract reads it. See [Appraiser](/docs/concepts/appraiser).
+
 ## Layers
 
 The system has seven layers, from the agent to the observer.

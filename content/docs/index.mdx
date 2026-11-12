@@ -49,9 +49,12 @@ x207 is built as a binding of the x402 `batch-settlement` scheme on the network 
 
 The figures above are from the README of the x207 repository and the recorded run it names. Cycle clearing does not change who pays what in the current version; see [Epochs and clearing](/docs/concepts/epochs-and-clearing).
 
+An optional appraiser on NEAR AI Cloud (inside a TEE) gives price advice for barter assets, with proof anyone can check again. It is advice only and the circle contract does not read it; see [Appraiser](/docs/concepts/appraiser).
+
 ## Next
 
 <Cards>
+  <Card title="Appraiser" href="/docs/concepts/appraiser">Price advice for barter assets from a model inside a TEE.</Card>
   <Card title="Quickstart" href="/docs/quickstart">Try x207 on testnet in about five minutes.</Card>
   <Card title="Concepts" href="/docs/concepts">Circles, vouchers, epochs, residuals, stake and the x402 binding.</Card>
   <Card title="Roadmap" href="/docs/roadmap">What is built, what is planned, including USDC.</Card>

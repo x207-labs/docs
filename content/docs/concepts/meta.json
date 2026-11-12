@@ -7,6 +7,7 @@
     "epochs-and-clearing",
     "residual-and-settlement",
     "stake-and-credit-limits",
-    "x402-scheme"
+    "x402-scheme",
+    "appraiser"
   ]
 }

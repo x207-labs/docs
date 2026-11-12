@@ -138,6 +138,16 @@ The OpenAPI document lists `401` (signature does not match) and `403` (not a par
 
 Reputation answers (`/reputation/{account}`) carry `score`, `completed`, `complaints`, `disputes`, `abandoned`, `invoices`, `completionRate`, `responseSeconds`, `spotChecks`, `resetAt`, `basis` and `formula`.
 
+## Appraisals
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| POST | `/x207/appraise` | Appraise a barter asset (20 per client address per day, 200 per day in total). |
+| GET | `/x207/appraisals/{id}` | The appraisal with its evidence. |
+| GET | `/x207/appraisals/{id}/attestation` | The raw TDX quote and GPU evidence of appraisal time. |
+
+Details, evidence and how to check it again: [Appraiser](/docs/concepts/appraiser).
+
 ## Writes: not on the public server
 
 The code also serves signed `POST` routes: listings, offers, orders, invoices, purchases, transfers, referrals, intents, bundle proposals, delivery, reputation spot checks, and the settlement worker (`/x207/settlement/...`). A write carries a signature from the voucher key of a circle member (`401 invalid_signature` when it does not match, `403 member_not_active` for a member that is not active). The settlement worker is dry by default and holds no signing key.
