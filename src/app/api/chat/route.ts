@@ -52,20 +52,37 @@ function getIndex() {
   return indexPromise;
 }
 
+const STOPWORDS = new Set(
+  'the and for are was were what when where which who whom how why does did can could would should will with that this these those from into onto about after before then than them they their there here have has had not but you your our its out any all per via use used using get got make made'.split(' '),
+);
+
 async function retrieve(query: string): Promise<Chunk[]> {
   const { index, chunks } = await getIndex();
-  const hits = index.search(query, { limit: 8 }) as { result: (number | string)[] }[];
-  const seen = new Set<number>();
-  const ordered: Chunk[] = [];
-  for (const field of hits) {
-    for (const id of field.result) {
-      const n = Number(id);
-      if (!seen.has(n) && chunks[n]) {
-        seen.add(n);
-        ordered.push(chunks[n]);
+  // A whole sentence as one query needs every word in one chunk, so search each content word
+  // on its own and rank chunks by how many words (and which fields) matched.
+  const terms = [
+    ...new Set(
+      query
+        .toLowerCase()
+        .split(/[^a-z0-9_]+/)
+        .filter((w) => w.length > 2 && !STOPWORDS.has(w)),
+    ),
+  ].slice(0, 12);
+  const score = new Map<number, number>();
+  for (const term of terms) {
+    const hits = index.search(term, { limit: 20 }) as { field?: string; result: (number | string)[] }[];
+    for (const field of hits) {
+      for (const id of field.result) {
+        const n = Number(id);
+        score.set(n, (score.get(n) ?? 0) + (field.field === 'title' ? 3 : 1));
       }
     }
   }
+  const ordered = [...score.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .map(([n]) => chunks[n])
+    .filter(Boolean)
+    .slice(0, 10);
   return fitToBudget(ordered);
 }
 
