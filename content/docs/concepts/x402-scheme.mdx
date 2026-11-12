@@ -28,6 +28,22 @@ x402 version 2 headers are used unchanged: `PAYMENT-REQUIRED`, `PAYMENT-SIGNATUR
 
 A seller can list a companion `exact` entry on `near:mainnet` for buyers outside the circle.
 
+```mermaid
+sequenceDiagram
+    participant B as Buyer
+    participant S as Seller
+    participant F as Facilitator
+    participant C as Circle contract
+    B->>S: request
+    S-->>B: 402 with PAYMENT-REQUIRED
+    B->>S: retry with PAYMENT-SIGNATURE
+    S->>F: POST /verify
+    F-->>S: verified
+    S-->>B: resource with PAYMENT-RESPONSE
+    S->>F: POST /settle
+    F->>C: register_cumulative
+```
+
 ## Facilitator
 
 | Endpoint | Purpose |

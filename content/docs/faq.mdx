@@ -43,6 +43,15 @@ Not tested there. The residual batch ran against the real `intents.near` wasm in
 
 Mock USDT on testnet (`usdt.x207-deployer.testnet`). The mainnet target is `usdt.tether-token.near`. USDC is on the [roadmap](/docs/roadmap).
 
+```mermaid
+flowchart TB
+    Q["x207 FAQ"] --> Live["Live: NEAR testnet, mock USDT"]
+    Q --> Save["Saves value moved, not gas"]
+    Q --> Risk["Limit bounded by stake, default covered by stake"]
+    Q --> Open["Solver and keeper are open to anyone"]
+    Q --> Not["Not done: mainnet, x402 acceptance, Intents on mainnet"]
+```
+
 ## Source
 
 - [README.md](https://github.com/x207-labs/x207/blob/main/README.md)

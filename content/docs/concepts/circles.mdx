@@ -28,6 +28,15 @@ A member goes through these states:
 | `suspended` | Defaulted. Limit is 0. |
 | `exited` | Left after `request_exit` and `withdraw_stake`. |
 
+```mermaid
+stateDiagram-v2
+    [*] --> pending: join, admission dao
+    [*] --> active: join, admission open
+    pending --> active: admitted
+    active --> suspended: default
+    active --> exited: request_exit and withdraw_stake
+```
+
 Admission is `open` or `dao`, set in the circle parameters. Joining needs a 0.35 NEAR deposit, which is not refunded, and the stake sent as an `ft_transfer_call` of USDT with msg action `stake`. A new member registers a **voucher key**, an ed25519 key that is separate from its NEAR access key.
 
 ## Parameters
@@ -53,6 +62,15 @@ Credit has 6 decimals and 1 credit equals 1 USDT unit at settlement.
 - The keeper steps (`close_epoch`, `commit_epoch`, `finalize_epoch`) are open to any account.
 - Any account can act as a solver and call `submit_clearing`.
 - Withdrawing an Intents balance with `withdraw_intents_balance` is permissionless.
+
+```mermaid
+flowchart TB
+    C["x207-circle contract"]
+    M["Members: join, sign vouchers, pay, claim"] --> C
+    K["Any account as keeper: close_epoch, commit_epoch, finalize_epoch"] --> C
+    S["Any account as solver: submit_clearing"] --> C
+    W["Any account: withdraw_intents_balance"] --> C
+```
 
 ## Source
 

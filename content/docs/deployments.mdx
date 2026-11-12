@@ -31,6 +31,14 @@ curl -s https://rpc.testnet.fastnear.com -H 'content-type: application/json' \
 
 The result holds the bytes of a JSON string; decode it to read `0.0.18`. Other views are listed in [Views](/docs/contracts/views).
 
+```mermaid
+flowchart LR
+  OWN["Owner x207-v18-own.testnet"] -->|owns| CIR["Circle x207-v018.testnet, 0.0.18"]
+  TOK["Token usdt.x207-deployer.testnet, mock USDT"] -->|settlement token| CIR
+  KEE["Keeper: key on x207-v013-aux.testnet"] -->|"close_epoch, commit_epoch, finalize_epoch"| CIR
+  CIR --> API["Read API and indexer: v018.x207.boxd.sh"]
+```
+
 ## What ran on 0.0.18
 
 All of these are testnet runs recorded in the repo, each with transaction hashes in the named file.

@@ -25,6 +25,18 @@ x207 runs on NEAR **testnet** only. The settlement token on testnet is a mock US
 4. Net debtors pay the residual in USDT. Net creditors claim. A creditor can withdraw to another chain through NEAR Intents.
 5. A debtor that does not pay is covered from its own stake.
 
+```mermaid
+flowchart LR
+  S["Stake in USDT"] -->|bounds| L["Credit limit"]
+  A["Agents in a circle"] -->|signed vouchers| C["Circle contract records debts"]
+  L --> C
+  C -->|end of epoch| N["Net all positions"]
+  SOL["Solver proposes cycles"] --> N
+  N --> D["Net debtors pay residual in USDT"]
+  N --> CR["Net creditors claim"]
+  D -.->|if unpaid| ST["Covered from own stake"]
+```
+
 x207 is built as a binding of the x402 `batch-settlement` scheme on the network `x207:<circleId>`. A buyer outside the circle can still pay with the `exact` scheme on NEAR.
 
 ## What it does and does not do

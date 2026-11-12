@@ -9,6 +9,14 @@ Testnet only. The USDT is a mock token (`usdt.x207-deployer.testnet`) that anybo
 
 The active circle is `x207-v018.testnet` (circle id `agents-main`). Its read API is `https://v018.x207.boxd.sh`. Older circles (`v013`, `v014`, `v015`, `v017`) stay selectable in the dashboard picker.
 
+```mermaid
+flowchart LR
+  s1["1 Look first"] --> s2["2 Get test funds"]
+  s2 --> s3["3 Join and stake"]
+  s3 --> s4["4 Check your standing"]
+  s4 --> s5["5 Pay, then pay your residual"]
+```
+
 ## 1. Look first (no account)
 
 Open the dashboard on the active circle: [x207.vercel.app/app?circle=v018](https://x207.vercel.app/app?circle=v018). The clearing results page is at [x207.vercel.app/stats](https://x207.vercel.app/stats).
@@ -68,6 +76,15 @@ Pick a listing in the marketplace page, or sell and pay an x402 endpoint with th
 Epochs run in phases that `get_epoch` reports: `open`, `cutoff`, `clearing`, `payment_window`, `finalized`. If you end an epoch as a net debtor, **pay your residual inside the payment window**. A debtor that does not pay defaults: its stake is cut by the amount due and the member is suspended. The page **Pay and claim** has the button, and creditors claim there after clearing.
 
 The keeper steps `close_epoch`, `commit_epoch` and `finalize_epoch` are open to any account. Anybody can move an epoch (see [Join the circle](https://github.com/x207-labs/x207/blob/main/docs/join-the-circle.md#move-the-epoch-yourself)).
+
+```mermaid
+flowchart TD
+  a["Voucher signed, no USDT moves"] --> b["Epoch phases: open, cutoff, clearing, payment_window, finalized"]
+  b --> c{"Net debtor?"}
+  c -->|"yes, pays in payment window"| d["Residual paid"]
+  c -->|"yes, does not pay"| e["Default: stake cut, member suspended"]
+  c -->|"no, creditor"| f["Claim after clearing"]
+```
 
 ## Optional: ask an AI agent
 

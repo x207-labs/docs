@@ -28,6 +28,22 @@ description: Terms used in the x207 docs.
 | 207 report | Per-epoch member status report from the read API. |
 | Testnet USDT | Mock token `usdt.x207-deployer.testnet`. Anyone can mint it. Not money. |
 
+```mermaid
+flowchart LR
+    Ci["Circle"] --> Me["Member"]
+    Me -->|"locks"| St["Stake"]
+    St -->|"bounds"| Li["Credit limit"]
+    Me -->|"signs"| Vo["Voucher"]
+    Vo -->|"register_cumulative"| Fa["Facilitator"]
+    Ci --> Ep["Epoch"]
+    Ep --> Ne["Netting and clearing"]
+    So["Solver: submit_clearing"] --> Ne
+    Ne --> Re["Residual"]
+    Re -->|"debtor pays"| Pw["Payment window"]
+    Re -->|"creditor"| Cl["Claim"]
+    Pw -->|"unpaid"| De["Default, covered from stake"]
+```
+
 ## Source
 
 - [README.md](https://github.com/x207-labs/x207/blob/main/README.md)

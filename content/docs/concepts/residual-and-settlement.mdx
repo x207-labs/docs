@@ -20,6 +20,18 @@ A creditor calls `claim(epoch, destination)`. The destination is one of:
 
 `claim` attaches a deposit, so it needs a full-access NEAR key, not the voucher key. The same goes for `join` and `settle`.
 
+```mermaid
+flowchart TB
+    R["Residual after clearing"] --> D["Debtor"]
+    R --> Cr["Creditor"]
+    D -->|"ft_transfer_call USDT, action settle"| P["Circle contract"]
+    D -->|"NEAR Intents balance: mt_on_transfer"| P
+    D -->|"set_auto_settle true: finalize_epoch uses stake"| P
+    Cr -->|"claim epoch, destination"| P
+    P -->|"near"| N["USDT to creditor NEAR account"]
+    P -->|"intents"| I["Intents balance, withdraw_intents_balance"]
+```
+
 ## Default
 
 A debtor that has not paid when the window ends is in default.
@@ -29,6 +41,14 @@ A debtor that has not paid when the window ends is in default.
 3. Any remainder is a haircut on direct creditors, with no cascade.
 
 Under `limit <= stake` the stake covers the whole debt, so steps 2 and 3 do not trigger. The defaulter is `suspended` with limit 0.
+
+```mermaid
+flowchart TB
+    W["payment_window ends, debtor unpaid"] --> S1["1. Debtor stake pays first"]
+    S1 --> S2["2. Reserve fund, if the circle has one"]
+    S2 --> S3["3. Remainder: haircut on direct creditors, no cascade"]
+    W --> X["Defaulter suspended, limit 0"]
+```
 
 In epoch 8 of `x207-v013.testnet`, 5 debtors paid, 1 defaulted (0.55 covered from its stake), and 3 of 8 creditors had claimed when the run was recorded.
 

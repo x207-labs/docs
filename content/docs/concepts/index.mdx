@@ -23,6 +23,16 @@ x207 has five moving parts. Read them in this order.
 5. A solver may submit a cycle-only clearing. The contract checks it in O(n).
 6. Net debtors pay the residual in USDT. Net creditors claim.
 
+```mermaid
+flowchart LR
+    A["Stake and credit limit"] --> B["Buyer pays 402 with voucher"]
+    B --> C["Facilitator: register_cumulative"]
+    C --> D["Epoch closes, positions netted"]
+    D --> E["Solver: cycle-only clearing"]
+    E --> F["Debtors pay residual in USDT"]
+    F --> G["Creditors claim"]
+```
+
 <Callout type="warn">
 Everything here runs on NEAR testnet with a mock USDT. See the [roadmap](/docs/roadmap) for what is not built.
 </Callout>

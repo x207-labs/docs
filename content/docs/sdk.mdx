@@ -59,6 +59,13 @@ const response = await paidFetch("https://seller.example/api/summarize");
 
 `X207PaymentClient` is an `x402Client` that has already registered `x207:*`. It uses the voucher while headroom lasts and falls back to the other entry of the `402` answer (normally `exact`) when headroom runs out. A `200` response carries the header `PAYMENT-RESPONSE`; `extensions.x207.registration` is `pending`, `retrying` or `registered`.
 
+```mermaid
+flowchart TD
+  A["402 answer lists voucher entry and exact"] --> B{"Headroom left?"}
+  B -->|"yes"| C["Sign voucher on x207 network"]
+  B -->|"no"| D["Fall back to exact entry"]
+```
+
 Already have an `x402Client`? Register the scheme yourself. This does not fall back to `exact` and does not check headroom:
 
 ```ts
@@ -88,6 +95,20 @@ const paywall = x207Middleware({
 The `402` answer then offers the voucher entry next to `exact`. The full example, including a Hono server and an optional second `exact` entry on Base Sepolia (`eip155:84532`, testnet USDC) for EVM buyers outside the circle via `alsoAccept`, is `examples/seller` in the repository. The x207 facilitator verifies and settles vouchers only; `alsoAccept` entries are verified and settled at the facilitator you name for them.
 
 One voucher pays one request at a time: the middleware holds the commitment id after `/verify` and a parallel request with the same id gets `409 voucher_in_flight`. The default guard lives in the memory of one process; pass `inFlight` to share it across processes.
+
+```mermaid
+sequenceDiagram
+  participant B as Buyer X207PaymentClient
+  participant S as Seller x207Middleware
+  participant F as Facilitator
+  B->>S: GET /api/summarize
+  S-->>B: 402 with PAYMENT-REQUIRED
+  B->>S: retry with PAYMENT-SIGNATURE voucher
+  S->>F: POST /verify
+  F-->>S: verified
+  S->>F: POST /settle
+  S-->>B: 200 with PAYMENT-RESPONSE
+```
 
 ## Join a circle
 

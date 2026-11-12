@@ -23,6 +23,16 @@ open -> cutoff -> close_epoch -> clearing -> commit_epoch -> payment_window -> f
 
 `close_epoch`, `commit_epoch` and `finalize_epoch` are open to any account.
 
+```mermaid
+stateDiagram-v2
+    [*] --> open
+    open --> cutoff: epoch ends
+    cutoff --> clearing: close_epoch
+    clearing --> payment_window: commit_epoch
+    payment_window --> finalized: finalize_epoch
+    finalized --> [*]
+```
+
 ## Netting
 
 The contract nets all positions in one step. Each member ends the epoch with one number: positive (creditor) or negative (debtor). Only these residuals ever need USDT.

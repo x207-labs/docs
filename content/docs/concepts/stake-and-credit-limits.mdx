@@ -33,6 +33,16 @@ headroom = max(0, limit - outstanding_debt - bundle reservations)
 
 Headroom is what a member can still spend now.
 
+```mermaid
+flowchart LR
+    ST["stake"] --> L["limit = min of limit_cap, formula, stake"]
+    SH["settled_history"] --> L
+    P["base_limit_ratio, limit_growth, limit_cap"] --> L
+    L --> H["headroom = max 0 of limit minus outstanding_debt minus bundle reservations"]
+    OD["outstanding_debt"] --> H
+    R["bundle reservations"] --> H
+```
+
 ## What this costs
 
 Capital locked is at least 125% of the debt a member can run up (stake over limit at the default ratio). x207 is not undercollateralised credit. It is netting with collateral: less value moves, the stake is the guarantee, and credit above stake is not built in the current version.

@@ -179,6 +179,26 @@ Escrow: `ERR_ESCROW_EXISTS`, `ERR_ESCROW_UNKNOWN`, `ERR_ESCROW_NOT_HELD`, `ERR_E
 | `ERR_EVM_FEE_NOT_ALLOWED` | `join_evm` with a relayer fee above 0 |
 | `ERR_NOT_EVM_MEMBER` | the member is not an EVM member |
 
+```mermaid
+flowchart LR
+  j["join"] --> e1["member_joined"]
+  j -.-> r1["ERR_INSUFFICIENT_STORAGE_DEPOSIT"]
+  rc["register_cumulative"] --> e2["voucher_registered"]
+  rc -.-> r2["ERR_PAST_CUTOFF, ERR_INSUFFICIENT_CREDIT"]
+  ce["close_epoch"] --> e3["epoch_cutoff"]
+  ce -.-> r3["ERR_BEFORE_CUTOFF"]
+  sc["submit_clearing"] --> e4["clearing_submitted"]
+  sc -.-> r4["ERR_PROPOSAL_NOT_BETTER, ERR_UNBALANCED_MEMBER"]
+  cm["commit_epoch"] --> e5["clearing_applied, epoch_committed"]
+  cm -.-> r5["ERR_PROPOSAL_WINDOW_OPEN"]
+  st["settle residual"] --> e6["residual_paid"]
+  st -.-> r6["ERR_NOT_DUE, ERR_UNDERPAYMENT"]
+  fe["finalize_epoch"] --> e7["member_defaulted, limits_updated, epoch_finalized"]
+  fe -.-> r7["ERR_PAYMENT_WINDOW_OPEN"]
+  cl["claim"] --> e8["residual_claimed"]
+  cl -.-> r8["ERR_NOT_CLAIMABLE"]
+```
+
 ## Source
 
 - https://github.com/x207-labs/contracts/blob/main/abi.json

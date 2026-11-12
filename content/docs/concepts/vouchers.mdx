@@ -46,6 +46,20 @@ The facilitator batches registrations. Defaults in the SDK scheduler: register o
 
 A voucher that is signed but not registered by the epoch cutoff does not count.
 
+```mermaid
+sequenceDiagram
+    participant A as Payer agent
+    participant S as Seller
+    participant F as Facilitator
+    participant C as Circle contract
+    A->>S: x402 call with signed voucher
+    S->>F: verify
+    F-->>S: ok
+    S-->>A: resource served
+    F->>C: register_cumulative
+    C-->>F: registered
+```
+
 ## Source
 
 - [sdk/spec/voucher-format.md](https://github.com/x207-labs/sdk/blob/main/spec/voucher-format.md)

@@ -25,6 +25,15 @@ curl -s "https://v018.x207.boxd.sh/x207/circles/agents-main/members?limit=5"
 
 The indexer halts and writes nothing when its state does not match the chain; it never fixes data silently. Every JSON answer is served from the read model, so a fresh chain event appears after the indexer has processed its block (`GET /x207/health` shows the lag).
 
+```mermaid
+flowchart LR
+  chain["x207-circle on NEAR testnet"] -->|"NEP-297 event logs"| idx["Indexer"]
+  idx --> db[("SQLite read model")]
+  client["Client or dashboard"] -->|"GET routes"| api["Read API"]
+  api --> db
+  client -->|"other POST"| nf["404 not_found"]
+```
+
 ## Conventions
 
 | Topic | Rule |
@@ -195,6 +204,17 @@ curl -s -X POST https://v018.x207.boxd.sh/x207/faucet \
 | 502 | `faucet_failed` | The network did not answer or the transfer failed; nothing was sent |
 | 502 | `faucet_partial` | The NEAR was sent but the USDT step failed; `details.near_tx` has the hash. Send the same request again to finish the USDT without sending NEAR twice |
 | 503 | `faucet_empty` | The faucet account is below its reserve |
+
+```mermaid
+sequenceDiagram
+  participant C as Client
+  participant B as Backend faucet
+  participant N as NEAR testnet
+  C->>B: POST /x207/faucet with account_id
+  B->>N: send test NEAR
+  B->>N: send mock USDT
+  B-->>C: 201 with near and usdt
+```
 
 How it stays bounded: the faucet pays from its own small testnet account, never the deployer account. It refuses to start with a mainnet RPC or an account that does not end in `.testnet`. Limits (one grant per account, per address per rolling day, grants per rolling day) are reserved before any network call and kept in SQLite, so they survive a restart. It does not prove that the caller owns the account, and many accounts or addresses can drain the daily quota. That is the accepted cost of an open testnet faucet.
 

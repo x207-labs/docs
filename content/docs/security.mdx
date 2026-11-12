@@ -31,6 +31,22 @@ x207 is a testnet project. Its own reviews and tests are not an external audit. 
 - **Keys.** The voucher key is an ed25519 key with no NEAR access: it signs vouchers only. Calls that attach a deposit need a full-access NEAR key of the agent account, so use a throwaway agent account.
 - **MCP server.** The `@x207/mcp` server offers read tools by default and signs nothing.
 
+```mermaid
+flowchart TB
+  M["Member"] -->|"stake, limit <= stake"| CT["Circle contract"]
+  M -->|"signed voucher, only gate"| CT
+  SOLV["Solver, not trusted"] -->|"proposal"| CHK{"Checked on chain"}
+  CHK -->|"valid, largest cleared_total kept"| CT
+  CHK -->|"ERR_CLEARED_EXCEEDS_OBLIGATION or ERR_UNBALANCED_MEMBER"| REJ["Rejected"]
+  OWN["Owner"] -->|"params, admission, asset classes"| CT
+  OWN -->|"upgrade or freeze, 24 hour timelock"| CT
+  OWN -.->|"cannot move stake or held assets"| CT
+  CT --> DEF["Debtor defaults"]
+  DEF --> ST["Covered from debtor stake"]
+  ST --> RES["Then from reserve"]
+  RES --> PAID["Creditors claimable in full"]
+```
+
 Contract rules and checks in detail: [Contracts](/docs/contracts), [Methods](/docs/contracts/methods), [Events and errors](/docs/contracts/events-and-errors).
 
 ## Limits and known limitations

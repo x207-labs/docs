@@ -47,6 +47,20 @@ x207 is a settlement layer. The contract is the only place where a circle is tru
 | Solver | `solver` | Open clearing solver: reads the frozen obligation graph, computes the largest cycle-only clearing with min-cost flow, submits it. Also the barter matching (`x207-barter`). See [Solver](/docs/solver). |
 | Agents | `agents` | Six demo agents (translate, summarize, scrape, image, clean, compute) that sell behind an x402 paywall and buy from each other with signed vouchers. See [Agents](/docs/agents). |
 
+```mermaid
+flowchart TB
+  BUY["Buyer agent"] <-->|"x402 call"| SEL["Seller agent"]
+  SEL -->|"verify, settle"| FAC["Facilitator"]
+  FAC -->|"register_cumulative"| CT["x207-circle contract"]
+  KEE["Keeper"] -->|"close_epoch, commit_epoch, finalize_epoch, prune_epoch"| CT
+  SOL["Solver"] -->|"submit_clearing"| CT
+  CT -->|"NEP-297 events"| BE["Backend: indexer, SQLite read model, read API"]
+  BE --> FE["Frontend dashboard"]
+  BE -->|"obligation graph"| SOL
+  BE --> AG["Agents"]
+  BE --> MCP["MCP server, read tools"]
+```
+
 ## Layers
 
 The system has seven layers, from the agent to the observer.
@@ -74,6 +88,27 @@ The system has seven layers, from the agent to the observer.
 9. **Finalize.** After the payment window, anyone calls `finalize_epoch`. A debtor still `due` defaults: its stake covers it, then the reserve. Limits are recomputed.
 10. **Claim.** Creditors call `claim` for USDT on their NEAR account or in their Intents balance.
 11. **Observe.** The indexer reads NEP-297 events into the read model. The dashboard, the read API, the `207` report and the MCP server read from it.
+
+```mermaid
+sequenceDiagram
+  participant B as Buyer
+  participant S as Seller
+  participant F as Facilitator
+  participant C as Circle contract
+  participant V as Solver
+  B->>S: call endpoint
+  S-->>B: 402 PAYMENT-REQUIRED
+  B->>S: PAYMENT-SIGNATURE voucher
+  S->>F: verify
+  S-->>B: serve call, PAYMENT-RESPONSE
+  F->>C: register_cumulative
+  Note over C: close_epoch freezes the graph
+  V->>C: submit_clearing
+  Note over C: commit_epoch sets due and claimable
+  B->>C: pay residual in USDT
+  Note over C: finalize_epoch, debtor still due defaults
+  S->>C: claim
+```
 
 ## Where trust sits
 

@@ -37,6 +37,15 @@ The contract has no special roles beyond these. Most steps are open to anyone.
 | Keeper | Any account | `close_epoch`, `commit_epoch`, `finalize_epoch`, `prune_epoch` |
 | Relayer | Any account | Relays signed actions of EVM members (`join_evm`, `claim_evm`, and others) |
 
+```mermaid
+flowchart LR
+  Owner["Owner"] -->|"set_params, admit_member"| Circle["x207-circle"]
+  Member["Member"] -->|"vouchers, claim"| Circle
+  Solver["Solver"] -->|"submit_clearing"| Circle
+  Keeper["Keeper"] -->|"close_epoch, commit_epoch, finalize_epoch, prune_epoch"| Circle
+  Relayer["Relayer"] -->|"join_evm, claim_evm"| Circle
+```
+
 ## Epoch phases
 
 `get_epoch` reports one of: `open`, `cutoff`, `clearing`, `commit`, `payment_window`, `finalized`.
@@ -49,6 +58,17 @@ commit --commit_epoch--> payment_window  net debtors pay (settle)
 payment_window --finalize_epoch--> finalized   defaults covered, creditors claim
 ```
 
+```mermaid
+stateDiagram-v2
+  [*] --> open
+  open --> cutoff: epoch_length ends
+  cutoff --> clearing: close_epoch
+  clearing --> commit: proposal_window ends
+  commit --> payment_window: commit_epoch
+  payment_window --> finalized: finalize_epoch
+  finalized --> [*]
+```
+
 ## Member life
 
 `get_member` reports one of `pending`, `active`, `suspended`, `exited`.
@@ -57,6 +77,16 @@ payment_window --finalize_epoch--> finalized   defaults covered, creditors claim
 - A stake via `ft_on_transfer` with `{"action":"stake"}` (and DAO admission when `admission` is `dao`) makes it `active`.
 - A default at `finalize_epoch` makes it `suspended`. A later stake top-up reactivates it from a later epoch (`member_reactivated`).
 - `request_exit`, then `withdraw_stake` once the exit epoch is `finalized` and no debt remains, makes it `exited`.
+
+```mermaid
+stateDiagram-v2
+  [*] --> pending: join
+  pending --> active: stake via ft_on_transfer
+  active --> suspended: default at finalize_epoch
+  suspended --> active: stake top-up from a later epoch
+  active --> exited: request_exit then withdraw_stake
+  exited --> [*]
+```
 
 ## Credit limit
 

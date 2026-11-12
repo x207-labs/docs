@@ -48,6 +48,23 @@ A voucher has the fields `circle`, `payer`, `payee`, `resource`, `unit`, `epoch`
 | `prune_epoch` | `epoch`, `max_items` (up to 200) | Permissionless | Removes entries of a `finalized` epoch and returns how many it removed. Refused with `ERR_PRUNE_TOO_EARLY` until the running epoch is at least `prune_delay_epochs` after `epoch`. |
 | `set_params` | `params` | Owner | Validates and stores the params as pending for the next epoch. A second call in the same epoch overwrites the first. |
 
+```mermaid
+sequenceDiagram
+  participant M as Member
+  participant S as Solver
+  participant K as Keeper
+  participant C as x207-circle
+  participant U as USDT contract
+  M->>C: register_cumulative while open
+  K->>C: close_epoch after cutoff
+  S->>C: submit_clearing
+  K->>C: commit_epoch after proposal window
+  M->>U: ft_transfer_call with action settle
+  U->>C: ft_on_transfer
+  K->>C: finalize_epoch after payment window
+  M->>C: claim on finalized epoch
+```
+
 ## Settlement
 
 | Method | Parameters | Caller | Behaviour |

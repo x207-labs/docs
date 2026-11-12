@@ -53,6 +53,29 @@ List views take `from_index` and `limit`. A `limit` of 0, or a `from_index` past
 | `net_position` | `epoch`, `account_id` | `PositionView` (status `due`, `paid`, `defaulted`, `claimable`, `claimed`), or `null` for a net-zero member, an unknown member or an epoch that is not committed. |
 | `list_positions` | `epoch`, `from_index`, `limit` | A page of `PositionView`. |
 
+```mermaid
+flowchart LR
+  subgraph Circle["Circle state"]
+    v1["get_circle, get_params, get_pending_params"]
+    v2["get_pool"]
+  end
+  subgraph Mem["Member state"]
+    v3["member, list_members"]
+    v4["limit"]
+    v5["outstanding_debt"]
+    v6["headroom"]
+  end
+  subgraph Ep["Epoch state"]
+    v7["get_epoch"]
+    v8["obligation, list_obligations, last_seq"]
+    v9["get_clearing_proposal, get_proposal"]
+    v10["net_position, list_positions"]
+  end
+  v4 --> v6
+  v5 --> v6
+  sim["simulate_clearing"] -.->|"checks without storing"| v9
+```
+
 ## Barter and deals
 
 | View | Parameters | Returns |
