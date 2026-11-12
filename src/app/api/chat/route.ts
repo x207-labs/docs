@@ -121,23 +121,57 @@ export async function POST(req: Request) {
 
   const provider = createOpenAICompatible({ name: 'wusrouter', baseURL: BASE_URL, apiKey });
 
-  const result = streamText({
-    model: provider.chatModel(process.env.X207_DOCS_AI_MODEL || DEFAULT_MODEL),
-    instructions: systemPrompt(context),
-    maxOutputTokens: MAX_OUTPUT_TOKENS,
-    messages: await convertToModelMessages<ChatUIMessage>(messages, {
-      convertDataPart(part) {
-        if (part.type === 'data-client') {
-          const raw = JSON.stringify(part.data).slice(0, 300);
-          return { type: 'text', text: `[Client Context: ${raw}]` };
-        }
-      },
-    }),
+  const modelMessages = await convertToModelMessages<ChatUIMessage>(messages, {
+    convertDataPart(part) {
+      if (part.type === 'data-client') {
+        const raw = JSON.stringify(part.data).slice(0, 300);
+        return { type: 'text', text: `[Client Context: ${raw}]` };
+      }
+    },
+  });
+
+  // X207_DOCS_AI_MODEL may hold several models, comma separated. If one fails before it
+  // answers anything, the next is tried.
+  const models = (process.env.X207_DOCS_AI_MODEL || DEFAULT_MODEL)
+    .split(',')
+    .map((m) => m.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+
+  const start = (modelId: string) =>
+    streamText({
+      model: provider.chatModel(modelId),
+      instructions: systemPrompt(context),
+      maxOutputTokens: MAX_OUTPUT_TOKENS,
+      messages: modelMessages,
+    });
+
+  let result = start(models[0]);
+  let reader = result.stream.getReader();
+  let first = await reader.read();
+  for (let i = 1; i < models.length && !first.done && (first.value as { type?: string }).type === 'error'; i++) {
+    const err = (first.value as { error?: unknown }).error as { statusCode?: number } | undefined;
+    console.error('chat model failed, trying next', models[i - 1], err?.statusCode ?? '');
+    result = start(models[i]);
+    reader = result.stream.getReader();
+    first = await reader.read();
+  }
+  const peeked = first;
+  const source = reader;
+  const stream = new ReadableStream({
+    start(controller) {
+      if (!peeked.done) controller.enqueue(peeked.value);
+    },
+    async pull(controller) {
+      const next = await source.read();
+      if (next.done) controller.close();
+      else controller.enqueue(next.value);
+    },
   });
 
   return createUIMessageStreamResponse({
     stream: toUIMessageStream({
-      stream: result.stream,
+      stream: stream as typeof result.stream,
       onError: (error) => {
         // Status and message only: never the request, headers or key.
         const e = error as { statusCode?: number; message?: string; responseBody?: string };
