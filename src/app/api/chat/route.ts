@@ -17,9 +17,14 @@ import type { ChatUIMessage } from '@/components/ai/search';
 
 export const runtime = 'nodejs';
 
-const BASE_URL = 'https://api.wusrouter.com/v1';
-// Default: cheap chat model (billed per request, listed at wusrouter.com/api/v1/models).
-const DEFAULT_MODEL = 'deepseek-v4-flash';
+// xKiro, OpenAI compatible (https://docs.xkiro.com). Free-tier chat models, tried in this order.
+const BASE_URL = 'https://api.xkiro.com/v1';
+const DEFAULT_MODEL = [
+  'mistralai/mistral-medium-3.5',
+  'mistralai/mistral-large-2512',
+  'cohere/command-a-plus',
+  'cohere/command-a',
+].join(',');
 
 const limiter = createRateLimiter({ perMinute: 10, perDay: 100 });
 
@@ -85,7 +90,7 @@ function userText(m: ChatUIMessage): string {
 }
 
 export async function POST(req: Request) {
-  const apiKey = process.env.WUSROUTER_API_KEY;
+  const apiKey = process.env.XKIRO_API_KEY;
   if (!apiKey) return text('AI assistant is not configured.', 503);
 
   const allow = (process.env.X207_DOCS_ALLOWED_ORIGINS ?? '').split(',').map((s) => s.trim()).filter(Boolean);
@@ -119,7 +124,7 @@ export async function POST(req: Request) {
 
   const context = await retrieve(userText(last));
 
-  const provider = createOpenAICompatible({ name: 'wusrouter', baseURL: BASE_URL, apiKey });
+  const provider = createOpenAICompatible({ name: 'xkiro', baseURL: BASE_URL, apiKey });
 
   const modelMessages = await convertToModelMessages<ChatUIMessage>(messages, {
     convertDataPart(part) {
@@ -136,7 +141,7 @@ export async function POST(req: Request) {
     .split(',')
     .map((m) => m.trim())
     .filter(Boolean)
-    .slice(0, 3);
+    .slice(0, 5);
 
   const start = (modelId: string) =>
     streamText({
