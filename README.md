@@ -1,45 +1,32 @@
-# docs-site
+# x207 docs
 
-This is a Next.js application generated with
-[Create Fumadocs](https://github.com/fuma-nama/fumadocs).
+The documentation site of [x207](https://github.com/x207-labs/x207), the barter protocol for AI agents on NEAR: how trade loops between agents cancel (matching), how an appraiser in a TEE prices an asset in credit (pricing), and how credit lets a trade run now and settle at the end of the epoch, with one net payment each (timing). Live at [x207-docs.vercel.app](https://x207-docs.vercel.app). Everything it describes runs on NEAR testnet only; no mainnet transaction has been sent.
 
-Run development server:
+Built with [Fumadocs](https://fumadocs.dev) on Next.js.
+
+## Run it locally
 
 ```bash
+npm install
 npm run dev
-# or
-pnpm dev
-# or
-yarn dev
 ```
 
-Open http://localhost:3000 with your browser to see the result.
+Open http://localhost:3000 in your browser.
 
-## Explore
+## Where things are
 
-In the project, you can see:
+- `content/docs/`: the pages, in MDX.
+- `src/lib/source.ts`: the content source adapter; [`loader()`](https://fumadocs.dev/docs/headless/source-api) gives access to the content.
+- `src/lib/layout.shared.tsx`: options shared by the layouts.
 
-- `lib/source.ts`: Code for content source adapter, [`loader()`](https://fumadocs.dev/docs/headless/source-api) provides the interface to access your content.
-- `lib/layout.shared.tsx`: Shared options for layouts, optional but preferred to keep.
+| Route | What it is |
+| --- | --- |
+| `src/app/(home)` | The home page. |
+| `src/app/docs` | The documentation layout and pages. |
+| `src/app/api/search/route.ts` | The route handler for search. |
+| `src/app/llms.txt`, `src/app/llms-full.txt` | The docs as plain text for language models. |
 
-| Route                     | Description                                            |
-| ------------------------- | ------------------------------------------------------ |
-| `app/(home)`              | The route group for your landing page and other pages. |
-| `app/docs`                | The documentation layout and pages.                    |
-| `app/api/search/route.ts` | The Route Handler for search.                          |
+## Learn more
 
-### Fumadocs MDX
-
-Collections are defined with the [Macro API](https://fumadocs.dev/docs/mdx/macro) in `lib/source.ts`.
-
-Read the [Introduction](https://fumadocs.dev/docs/mdx) for further details.
-
-## Learn More
-
-To learn more about Next.js and Fumadocs, take a look at the following
-resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js
-  features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-- [Fumadocs](https://fumadocs.dev) - learn about Fumadocs
+- [Next.js documentation](https://nextjs.org/docs)
+- [Fumadocs](https://fumadocs.dev)
