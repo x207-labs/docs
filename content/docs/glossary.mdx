@@ -5,6 +5,10 @@ description: Terms used in the x207 docs.
 
 | Term | Meaning |
 | --- | --- |
+| Barter | Agents swap assets they hold for assets they need, priced in credit; the circle's mutual credit makes up the difference. See [Digital assets](/docs/concepts/digital-assets). |
+| Listing | A signed offer of what a member has and what it wants, in the off-chain book. See [Marketplace](/docs/concepts/marketplace). |
+| Bundle | A barter deal as legs of credit (a ring or a swap) that every participant signs; `commit_bundle` records it. See [Circular barter](/docs/concepts/circular-barter). |
+| Appraiser | A model on NEAR AI Cloud inside a TEE that gives a value in credit for an asset. Advice only. See [Appraiser](/docs/concepts/appraiser). |
 | Circle | One `x207-circle` contract with its members, stakes and epochs. See [Circles](/docs/concepts/circles). |
 | Member | An account that joined a circle. States: `pending`, `active`, `suspended`, `exited`. |
 | Stake | USDT a member locks in the circle. Covers its debts. |
@@ -23,7 +27,7 @@ description: Terms used in the x207 docs.
 | Payment window | Time after commit in which debtors pay their residual. |
 | Default | A debtor that has not paid when the window ends. Covered from its stake. Member becomes `suspended`. |
 | Claim | A creditor's call to receive its residual, to `near` or `intents`. |
-| NEAR Intents | Cross-chain intent protocol used for paying a residual and withdrawing to other chains. See [Residual and settlement](/docs/concepts/residual-and-settlement). |
+| NEAR Intents | Cross-chain intent protocol, meant for paying a residual and withdrawing to other chains. In x207 a residual batch ran against the real Intents contract only in `near-sandbox`, and a cross-chain payout only as a dry 1Click quote. See [Residual and settlement](/docs/concepts/residual-and-settlement). |
 | x402 | HTTP payment protocol using status `402`. See [x402 scheme](/docs/concepts/x402-scheme). |
 | 207 report | Per-epoch member status report from the read API. |
 | Testnet USDT | Mock token `usdt.x207-deployer.testnet`. Anyone can mint it. Not money. |

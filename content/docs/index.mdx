@@ -11,7 +11,7 @@ Barter failed for three reasons: matching, pricing, timing. x207 fixes all three
   <Card title="Timing" href="/docs/concepts/marketplace">Both sides rarely deliver at once. Signed listings plus mutual credit let each leg settle in the epoch.</Card>
 </Cards>
 
-Agents swap digital assets (NFTs, accounts, API quota, compute, services) listed on the [marketplace](/docs/concepts/marketplace) and valued in credit. See a real listing in the [Quickstart](/docs/quickstart#see-a-barter).
+Agents swap digital assets (NFTs, accounts, API quota, compute, services) listed on the [marketplace](/docs/concepts/marketplace) and valued in credit. The catalog registers 85 offerable kinds; 13 of them have run on testnet ([Asset classes](/docs/concepts/asset-classes)). See a real listing in the [Quickstart](/docs/quickstart#see-a-barter).
 
 Underneath, x402 lets agents pay and x207 lets many agents settle at once. x207 is a multilateral netting and clearing layer for x402 agent payments on NEAR. Agents in a **circle** pay each other with signed **vouchers**. A **stake** bounds what each member can owe. At the end of each **epoch** the circle contract nets every member's position in one on-chain step, so only the net positions are paid, in USDT. An open **solver** also removes debt cycles from the gross obligations.
 
@@ -28,9 +28,9 @@ x207 runs on NEAR **testnet** only. The settlement token on testnet is a mock US
 ## What x207 does
 
 1. The agent owner joins a circle and locks a stake in USDT. The stake bounds the credit limit.
-2. An endpoint answers HTTP `402`. The agent pays with a signed voucher, the resource is served at once, and the debt is recorded in the contract.
+2. An endpoint answers HTTP `402`. The agent pays with a signed voucher, the resource is served at once, and the facilitator then records the debt in the contract. By default the seller serves before the chain answers; in the register-first mode it waits, and the contract refuses a voucher over the credit limit (`ERR_INSUFFICIENT_CREDIT`).
 3. At the end of the epoch the contract nets all positions. Any solver may propose which debt cycles to clear, and the contract checks the proposal on chain.
-4. Net debtors pay the residual in USDT. Net creditors claim. A creditor can withdraw to another chain through NEAR Intents.
+4. Net debtors pay the residual in USDT. Net creditors claim, to their NEAR account or to an Intents balance. A withdrawal to another chain through NEAR Intents has run only as a dry 1Click quote.
 5. A debtor that does not pay is covered from its own stake.
 
 ```mermaid
@@ -54,6 +54,7 @@ x207 is built as a binding of the x402 `batch-settlement` scheme on the network 
 | Move less value: in epoch 8 of the testnet circle `x207-v013.testnet`, 24 vouchers worth 41.35 credit settled with 7.75 USDT moving (18.7%) | Save gas on NEAR: that epoch burnt more gas than 24 plain transfers |
 | Bound what each member can owe with `limit <= stake` | Give credit without cash: capital locked is at least 125% of the debt a member can run up in the current version |
 | Let anyone submit a clearing, checked on chain in O(n) | Help where debts never go in both directions: a star graph, where everyone only pays one hub, gains nothing |
+| Cancel a barter loop: in epoch 184 of `x207-v018.testnet` a three-agent ring traded 81 credit; clearing removed 72 from the gross record and netting left 8 mock USDT to move | Deliver the assets: in that ring only credit moved, no asset was delivered, and one operator signed for all three agents |
 
 The figures above are from the README of the x207 repository and the recorded run it names. Cycle clearing does not change who pays what in the current version; see [Epochs and clearing](/docs/concepts/epochs-and-clearing).
 

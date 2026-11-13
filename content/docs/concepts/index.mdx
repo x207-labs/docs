@@ -29,7 +29,7 @@ x207 is a barter protocol. Barter comes first below; the circle, vouchers and cl
 ## One epoch in six lines
 
 1. Members hold a stake and a credit limit in a circle.
-2. A buyer pays an HTTP `402` with a signed voucher. The seller serves at once.
+2. A buyer pays an HTTP `402` with a signed voucher. The seller serves at once; by default it does not wait for the chain to accept the voucher.
 3. A facilitator registers vouchers on chain with `register_cumulative`.
 4. The epoch closes. The contract nets every member's position.
 5. A solver may submit a cycle-only clearing. The contract checks it in O(n).

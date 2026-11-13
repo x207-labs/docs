@@ -12,7 +12,7 @@ The current circle is `x207-v018.testnet` (contract interface 0.0.18).
 | Item | Value |
 | --- | --- |
 | Circle account | `x207-v018.testnet` |
-| Owner | `x207-v18-own.testnet` |
+| Owner | `x207-v18-own.testnet`, a team account (not a DAO; only the 0.0.13 circle is owned by a Sputnik DAO) |
 | Token (mock USDT) | `usdt.x207-deployer.testnet` |
 | Release tag | `v0.0.18` in the `contracts` repo |
 | Circle wasm sha256 | `4701ecce4168d18b0674b6b4af9f789219afc33be99d89c09f3a433c0bd0d198`, built twice with identical bytes from `contracts` commit `f551f51` |
@@ -43,6 +43,8 @@ flowchart LR
 
 All of these are testnet runs recorded in the repo, each with transaction hashes in the named file.
 
+- A three-agent barter ring in epoch 184: one `commit_bundle`, 81 credit traded, 72 removed by clearing, 8 mock USDT moved. One operator signed for all three agents; only credit moved, no asset was delivered. File: `docs/demo-barter-cycle.md` in the `agents` repo.
+- A voucher over the payer's headroom refused with `ERR_INSUFFICIENT_CREDIT` (epoch 183), with the seller middleware in register-first and default mode (mock facilitators). File: `docs/testnet-epochs/ct132-overspend-run.json` in the `contracts` repo.
 - Sale of a NEAR account through a locker (barter kinds 11 and 14): a delivery, a refused early delivery (`ERR_ESCROW_EPOCH_WAIT`), the old voucher key refused after rotation (`ERR_BAD_SIGNATURE`), the buyer's key accepted. Files: `docs/testnet-p1-v018.json`, `docs/testnet-ct127-close.json`, `docs/testnet-ct131-rotation.json`.
 - The escrow limit `max_escrow_ttl`: a 24-hour grant locked, an 80-hour grant refused. File: `docs/testnet-ct129-ttl-smoke.json`.
 - The first of these runs used the first 0.0.18 build, before `max_escrow_ttl`. `cancel_expired_account_escrow` on testnet is not covered by a transaction; it is covered in a sandbox test.

@@ -63,7 +63,7 @@ These pages show their own sign-in card where a form needs a wallet.
 
 | Route | Title | Shows |
 | --- | --- | --- |
-| `/governance` | Governance | Rule changes proposed and voted in the DAO. Read only |
+| `/governance` | Governance | Rule changes proposed and voted in the Sputnik DAO that owns `x207-v013.testnet`. The active `x207-v018.testnet` is owned by a team account, not a DAO. Read only |
 | `/help` | Help | How x207 works in four steps, and a glossary |
 
 Also: `/sign` is the popup page of the optional Privy wallet. The old Indonesian paths (for example `/statistik`, `/laporan`, `/risiko`) redirect to the English routes with the query kept. Any other path shows "This page does not exist".
@@ -80,7 +80,7 @@ Honest limit: the project documents that a real wallet through NEAR Connect has 
 
 1. Open `/onboarding` and connect a wallet.
 2. Follow the steps on the page: test funds, registration, and your credit limit. The stake is a mock USDT test token with no value.
-3. If you hold another asset, the page can request a 1Click quote that swaps it into USDT through NEAR Intents. Job states are shown on the page, ending at `ready_withdraw`. This path needs the hosted read API.
+3. If you hold another asset, the page can request a 1Click quote for a swap into USDT through NEAR Intents. Job states are shown on the page, ending at `ready_withdraw`. This path needs the hosted read API. Only a dry quote has run; no swap through Intents has moved funds.
 4. Pay any residual in the payment window at `/settlement`. A buyer that does not pay inside the window defaults: its stake is cut and the member is `suspended`.
 
 The command-line route, with two agent accounts and an MCP tool, is in the join guide linked below. Exit: the exit panel sends `request_exit`; after the epoch is finalized, "Withdraw stake" sends `withdraw_stake` and the status becomes `exited`. That flow is tested against near-sandbox with the wallet replaced by a mock.

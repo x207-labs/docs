@@ -6,14 +6,14 @@ description: What agents barter on x207 - NFTs, accounts, access, API quota, com
 x207 is a barter protocol. Agents swap things they hold for things they need, and the circle's mutual credit makes up the difference. A **digital asset** here is anything one agent can hand to another and a listing can describe: an NFT, a NEAR account, a rented access key, API quota, GPU hours, a data feed, a service call.
 
 <Callout type="warn">
-Testnet only. Barter and the marketplace have testnet and sandbox evidence for part of the catalog, not for all of it. See [Asset classes](/docs/concepts/asset-classes) for what has run and [Security and limits](/docs/security).
+Testnet only. Barter and the marketplace have testnet and sandbox evidence for part of the catalog, not for all of it: 85 offerable kinds are registered and 13 have run on testnet. See [Asset classes](/docs/concepts/asset-classes) for what has run and [Security and limits](/docs/security).
 </Callout>
 
 ## One unit for every asset: credit
 
 Every listing states a **value** in credit so two unlike assets can be compared.
 
-- 1 credit = 1 USD. Credit has 6 decimals, so 1 credit is `1000000` in the smallest unit (`CREDIT_DECIMALS = 6`).
+- 1 credit = 1 USD of the settlement token (on testnet a mock USDT with no value). Credit has 6 decimals, so 1 credit is `1000000` in the smallest unit (`CREDIT_DECIMALS = 6`).
 - Values, quantities and amounts are decimal strings or u128 in that smallest unit. Discounts are in basis points (`discount_bps`).
 - Credit is not cash. It is a bounded IOU inside a circle, limited by stake. See [Stake and credit limits](/docs/concepts/stake-and-credit-limits).
 

@@ -3,7 +3,7 @@ title: Architecture
 description: The components of x207, how they connect, and how one voucher travels from a paid call to a creditor's claim.
 ---
 
-x207 is a settlement layer. The contract is the only place where a circle is true. Every other component reads it, calls it, or helps someone use it. Anyone can replace the solver, the keeper and the facilitator; none of them holds funds.
+x207 is a barter protocol for AI agents on NEAR. This page shows the engine underneath: mutual credit, netting and clearing in one circle contract. The contract is the only place where a circle is true. Every other component reads it, calls it, or helps someone use it. Anyone can replace the solver, the keeper and the facilitator; none of them holds funds.
 
 > Testnet only. No mainnet deploy has been made. See [Deployments](/docs/deployments) and [Security and limits](/docs/security).
 
@@ -81,7 +81,7 @@ The system has seven layers, from the agent to the observer.
 
 1. **Request.** A buyer calls a seller's endpoint. The seller answers `402 PAYMENT-REQUIRED` with an x402 v2 offer: `x207` `batch-settlement` next to `exact`.
 2. **Voucher.** The buyer retries with `PAYMENT-SIGNATURE`: an ed25519-signed cumulative voucher (fields `circle`, `payer`, `payee`, `resource`, `unit`, `epoch`, `seq`, `cumulativeAmount`). See [Vouchers](/docs/concepts/vouchers) and [x402 scheme](/docs/concepts/x402-scheme).
-3. **Serve.** The seller asks the facilitator `/verify`. When it is valid the seller serves the call at once and returns `PAYMENT-RESPONSE`. Registering on chain happens after.
+3. **Serve.** The seller asks the facilitator `/verify`. When it is valid the seller serves the call at once and returns `PAYMENT-RESPONSE`. Registering on chain happens after, so in this default mode a voucher the contract later refuses has already been served. A register-first mode waits for the chain instead; see [x402 scheme](/docs/concepts/x402-scheme).
 4. **Register.** The facilitator calls `register_cumulative`. The contract checks both parties are `active`, the voucher is inside the epoch before the cutoff, and the payer's debt stays within its limit.
 5. **Close.** After the epoch length, anyone calls `close_epoch`. The obligation graph is frozen and the proposal window opens.
 6. **Clear.** Any solver reads the graph from the read API and calls `submit_clearing` with edges. The contract checks them in one pass and keeps the proposal with the largest `cleared_total`. See [Epochs and clearing](/docs/concepts/epochs-and-clearing).

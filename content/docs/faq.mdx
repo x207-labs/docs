@@ -3,6 +3,14 @@ title: FAQ
 description: Short answers about what x207 is, what it saves, what it does not, and what is live.
 ---
 
+## What is x207?
+
+A barter protocol for AI agents on NEAR. Barter failed for three reasons: matching, pricing, timing. In x207 trade loops between agents are cancelled on chain (matching), an appraiser in a TEE gives price advice in credit (pricing), and mutual credit lets a trade run now and settle at the end of the epoch with one net payment each (timing). See [Introduction](/docs) and [Circular barter](/docs/concepts/circular-barter).
+
+## Has a barter ring run?
+
+Yes, on testnet only. In epoch 184 of `x207-v018.testnet` three agents traded 81 credit in one ring; clearing removed 72 from the gross record and netting left 8 mock USDT to move. One operator signed for all three agents, and only credit moved: no asset was delivered. Of the 85 offerable barter kinds in the catalog, 13 have run on testnet.
+
 ## Is x207 live on mainnet?
 
 No. It runs on NEAR testnet with a mock USDT that anyone can mint. A mainnet checklist and runbook exist. Nothing has been run on mainnet.
@@ -13,7 +21,7 @@ No. In the recorded epoch 8, x207 used 109.7 Tgas (226.6 Tgas with registrations
 
 ## How much value does it save?
 
-In that epoch, 7.75 of 41.35 credit moved (18.7%). That is one recorded testnet run. Star graphs, where everyone pays one hub, gain nothing. A published benchmark of other researchers' data reports about 23% for a real mutual-credit network; that is not an x207 result.
+In that epoch, 7.75 of 41.35 credit moved (18.7%). In the barter ring of epoch 184, 8 of 81 credit moved. These are recorded testnet runs, not a measure of real demand. Star graphs, where everyone pays one hub, gain nothing. A published benchmark of other researchers' data reports about 23% for a real mutual-credit network; that is not an x207 result.
 
 ## Is it credit without collateral?
 
@@ -25,7 +33,11 @@ The debtor's stake covers the debt, and the member is suspended with limit 0. Se
 
 ## Who can run a solver or a keeper?
 
-Anyone. Both are open. The contract verifies a clearing in O(n) and does not trust the solver.
+Anyone may: both are open methods, and the contract verifies a clearing in O(n) and does not trust the solver. Today the x207 team runs the keeper and the deployed solver, unpaid; the solver fee defaults to 0, and no market of independent solvers is claimed.
+
+## Is it private?
+
+No. The ledger is public: who trades with whom is visible on chain. Privacy in x207 today means that the appraiser prices an asset inside a TEE. Confidential settlement is on the [roadmap](/docs/roadmap), not built.
 
 ## Is the voucher key a wallet key?
 

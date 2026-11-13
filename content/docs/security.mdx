@@ -57,7 +57,8 @@ Contract rules and checks in detail: [Contracts](/docs/contracts), [Methods](/do
 | Dense circles clear only part of the debt per epoch | `submit_clearing` takes at most 300 edges (`MAX_EDGES_PER_TX`), and the solver drops whole cycles to fit. In its benchmark on synthetic graphs (not a real payment graph), a random circle of 100 members and 2,909 obligations would clear 90.6% with the full solution but 14.7% after the cut; 200 members and 12,130 obligations 92.4% against 3.8%; 50 members and 238 obligations fit in 176 edges and clear 61.0%. A clearing that spans several transactions is not built. |
 | Credit is fully collateralized | In the default model `limit <= stake`. Credit beyond stake, and the haircut that would share a loss beyond stake and reserve, belong to a later phase and are not applied. |
 | Cash collusion within the cap | Two accounts can trade for cash to raise limits. The stake requirement and `limit_cap` bound it; they do not prevent it. |
-| Public ledger | Who trades with whom is visible on chain. Confidential settlement is not in the MVP. |
+| Public ledger | Who trades with whom is visible on chain. Privacy in x207 today means only that the appraiser prices inside a TEE. Confidential settlement is not in the MVP. |
+| Seller serves before the chain answers | In the default mode a seller serves after `/verify` and the voucher is registered later, so a voucher the contract refuses (`ERR_INSUFFICIENT_CREDIT`) may already have been served. The register-first mode closes that; see [x402 scheme](/docs/concepts/x402-scheme). |
 | Dependence on NEAR Intents | A fault in Intents affects the payment of the residual and the withdrawal to other chains. Clearing itself runs in the x207 contract and does not call Intents. |
 | Goods and services are not judged | A bundle fixes who pays whom, not whether the goods were delivered or good. Each leg is a voucher with a cap, so a payer loses at most its leg. Since interface 0.0.12 a bundle can name an arbiter and bonds (`rule_deal`), which moves only what the stake still holds; there is no wider dispute process. |
 | The listing book is off chain | Listings, negotiation and referrals run in the backend. An operator could hide or reorder listings. The book cannot create a deal: the contract recomputes `terms_hash` from the legs and needs every participant's signature. |
@@ -67,7 +68,7 @@ Contract rules and checks in detail: [Contracts](/docs/contracts), [Methods](/do
 | Class C broker has no TEE | Secrets delegated through the broker are not sealed to an enclave key; the broker's audit log is a plain file. |
 | Keeper and indexer are run by the team | Epoch keeping, the deployed solver, facilitator and read API are run by the x207 team and are unpaid. Anyone can run replacements; the contract does not depend on these particular ones. |
 | Solver fee is 0 | On the 0.0.13 circle the clearing and solver fees are set to 0, so a solver has no on-chain reward there. |
-| Owner key setup | The mainnet checklist leaves open whether to delete the full-access key of the circle account. Until that is decided and written down, do not assume the account can only be changed through the DAO. |
+| Owner key setup | The mainnet checklist leaves open whether to delete the full-access key of the circle account. Until that is decided and written down, do not assume the account can only be changed through the DAO. A Sputnik DAO owns only `x207-v013.testnet`; the active `x207-v018.testnet` is owned by a team account. |
 | Demand is not proven | Agents do not yet pay each other at scale. x207 reduces how much value has to move between agents; it does not create demand. |
 
 ## What was tested

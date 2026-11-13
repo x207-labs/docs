@@ -44,7 +44,7 @@ sequenceDiagram
 The solver does **not** pay the residual and does **not** call NEAR Intents. Its code touches only the read API and the circle contract. Cycles cancel; what is left is the net position of each member.
 
 - A net debtor pays its residual in USDT to the contract (`ft_transfer_call`) inside the payment window. A net creditor then calls `claim`.
-- NEAR Intents appears around that step, not in the solver. USDT that arrives as a multi-token transfer stays an Intents balance of the contract until someone withdraws it, and the dashboard has a panel for that. A member may also fund a stake or a residual from another asset through a 1Click quote. See [Dashboard](/docs/dashboard).
+- NEAR Intents appears around that step, not in the solver. USDT that arrives as a multi-token transfer stays an Intents balance of the contract until someone withdraws it, and the dashboard has a panel for that. The dashboard can also request a 1Click quote to fund a stake or a residual from another asset; only a dry quote has run, and no funds moved. See [Dashboard](/docs/dashboard).
 
 ## Try it: reproduce epoch 8
 

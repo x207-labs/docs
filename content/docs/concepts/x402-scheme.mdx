@@ -44,6 +44,8 @@ sequenceDiagram
     F->>C: register_cumulative
 ```
 
+**When the seller serves.** In the default mode shown above the seller serves after `/verify` and before the chain has registered the voucher, so a voucher the contract later refuses has already been served. In the register-first mode the seller registers first and serves only when the chain accepts. On `x207-v018.testnet` (epoch 183) the contract refused a voucher over the payer's headroom with `ERR_INSUFFICIENT_CREDIT`; with register-first the seller answered `402`, with the default mode it served the same voucher. The facilitators in that run were mocks ([ct132-overspend-run.json](https://github.com/x207-labs/contracts/blob/main/docs/testnet-epochs/ct132-overspend-run.json)).
+
 ## Facilitator
 
 | Endpoint | Purpose |

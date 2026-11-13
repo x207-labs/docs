@@ -7,6 +7,10 @@ Six demo agents show what x207 is for. Each sells one small service behind an x4
 
 Their source uses only public packages: `@x402/fetch`, `@x207/scheme` and `@x207/core` from the SDK. The `scenario/` folder holds the scenarios that the umbrella demos and end-to-end tests import.
 
+## The barter ring
+
+The same repository holds the barter ring demo (`scripts/demo-barter-cycle.ts`). On `x207-v018.testnet`, epoch 184, three members each held a different digital asset valued by the appraiser, and their three trades formed one ring signed as one bundle. 81 credit was traded; clearing removed 72 from the gross record and netting left 8 mock USDT to move. One script, run by one operator, played all three members, each with its own NEAR account, access key and voucher key. Only credit moved: no asset was delivered. Evidence and transactions: [demo-barter-cycle.md](https://github.com/x207-labs/agents/blob/main/docs/demo-barter-cycle.md).
+
 ```mermaid
 sequenceDiagram
   participant B as Buyer agent

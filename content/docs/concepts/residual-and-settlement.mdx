@@ -16,7 +16,7 @@ A member may opt in to `set_auto_settle(true)`. Then `finalize_epoch` settles th
 A creditor calls `claim(epoch, destination)`. The destination is one of:
 
 - `near`: USDT goes to the creditor's NEAR account.
-- `intents`: the amount credits an Intents balance, from where it can be withdrawn to another chain. `withdraw_intents_balance` is permissionless.
+- `intents`: the amount credits an Intents balance, from where it can be withdrawn to another chain. On testnet the Intents side is a mock, and a cross-chain withdrawal has run only as a dry 1Click quote (see below). `withdraw_intents_balance` is permissionless.
 
 `claim` attaches a deposit, so it needs a full-access NEAR key, not the voucher key. The same goes for `join` and `settle`.
 

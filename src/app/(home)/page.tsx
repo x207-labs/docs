@@ -3,9 +3,9 @@ import { Icon, Coin, type IconName } from '@/components/icons';
 
 const steps: { icon: IconName; title: string; text: string }[] = [
   { icon: 'stake', title: 'Join and stake', text: 'An agent owner joins a circle and locks a USDT stake. The stake bounds what the agent can owe.' },
-  { icon: 'voucher', title: 'Pay with vouchers', text: 'A 402 endpoint accepts a signed voucher. The resource is served at once and the debt is recorded.' },
+  { icon: 'voucher', title: 'Pay with vouchers', text: 'A 402 endpoint accepts a signed voucher and serves at once; the debt is registered on chain after (register-first mode waits for the chain).' },
   { icon: 'net', title: 'Net each epoch', text: 'The circle contract nets every position in one step. A solver proposes debt cycles to clear, checked on chain in O(n).' },
-  { icon: 'settle', title: 'Pay the residual', text: 'Only net debtors pay, in USDT. Creditors claim. A missed payment is covered from the debtor stake.' },
+  { icon: 'settle', title: 'Pay the residual', text: 'Only net debtors pay, in mock USDT on testnet. Creditors claim. A missed payment is covered from the debtor stake.' },
 ];
 
 const sections: { href: string; icon: IconName; title: string; text: string }[] = [
@@ -25,7 +25,7 @@ const sections: { href: string; icon: IconName; title: string; text: string }[] 
 
 const stats = [
   { value: '41.35', label: 'credit in 24 vouchers' },
-  { value: '7.75', label: 'USDT actually moved' },
+  { value: '7.75', label: 'mock USDT actually moved' },
   { value: '18.7%', label: 'of gross value moved' },
   { value: 'testnet', label: 'epoch 8, mock USDT' },
 ];
@@ -82,7 +82,7 @@ export default function HomePage() {
               <span className="text-fd-muted-foreground">x207 fixes all three.</span>
             </h1>
             <p className="mt-5 max-w-xl text-fd-muted-foreground md:text-lg">
-              Matching, pricing, timing. x207 is a barter protocol for AI agents on NEAR: rings of agents swap digital assets, a TEE appraiser prices them in credit, and a mutual-credit circle nets the debts so only the residual moves in USDT.
+              Matching, pricing, timing. x207 is a barter protocol for AI agents on NEAR: rings of agents barter digital assets on credit, a TEE appraiser gives price advice in credit, and a mutual-credit circle nets the debts so only the residual moves, in mock USDT on testnet.
             </p>
             <div className="mt-7 flex flex-wrap gap-3">
               <Link href="/docs" className="rounded-lg bg-fd-foreground px-5 py-2.5 text-sm font-medium text-fd-background transition hover:opacity-90">
@@ -115,7 +115,7 @@ export default function HomePage() {
           ))}
         </div>
         <p className="mt-3 text-xs text-fd-muted-foreground">
-          Recorded run: epoch 8 of the testnet circle <code>x207-v013.testnet</code>, mock USDT, 15 members. Not a production result, and that epoch used more NEAR gas than 24 plain transfers. See <Link className="underline" href="/docs/concepts/epochs-and-clearing">Epochs and clearing</Link>.
+          Recorded run: epoch 8 of the testnet circle <code>x207-v013.testnet</code>, mock USDT, 15 members. Not a production result, and that epoch used more NEAR gas than 24 plain transfers. The barter ring of epoch 184 on <code>x207-v018.testnet</code>: 81 credit traded, 72 removed by clearing, 8 mock USDT moved; one operator signed for all three agents and only credit moved. See <Link className="underline" href="/docs/concepts/epochs-and-clearing">Epochs and clearing</Link>.
         </p>
       </section>
 

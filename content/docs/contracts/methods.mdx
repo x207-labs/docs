@@ -5,7 +5,7 @@ description: Every state-changing method of the x207-circle contract (interface 
 
 All amounts are strings holding integers (`U128` in JSON) in token units; one credit is 1,000,000 units. Epochs and ids are integers. Names and parameters are copied from `contracts/abi.json` (interface 0.0.18). Error codes are listed in [Events and errors](/docs/contracts/events-and-errors). Read-only methods are in [Views](/docs/contracts/views).
 
-"Permissionless" means any account may call. "Owner" means `owner_id` (on the main testnet circle, a Sputnik DAO acting through proposals); the contract panics with `ERR_NOT_OWNER` otherwise.
+"Permissionless" means any account may call. "Owner" means `owner_id` (on `x207-v013.testnet` a Sputnik DAO acting through proposals; on the active `x207-v018.testnet` the team account `x207-v18-own.testnet`); the contract panics with `ERR_NOT_OWNER` otherwise.
 
 ## Setup
 

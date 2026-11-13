@@ -31,7 +31,7 @@ The contract has no special roles beyond these. Most steps are open to anyone.
 
 | Role | Who | What they can do |
 | --- | --- | --- |
-| Owner | `owner_id` set at `new`; on the main testnet circle a Sputnik DAO | `set_params`, `admit_member`, freeze and upgrade with timelocks, asset classes, official contract lists |
+| Owner | `owner_id` set at `new`; on `x207-v013.testnet` a Sputnik DAO, on the active `x207-v018.testnet` a team account | `set_params`, `admit_member`, freeze and upgrade with timelocks, asset classes, official contract lists |
 | Member | An account that called `join` and staked | Registers vouchers, takes part in clearing, claims |
 | Solver | Any account | `submit_clearing`; the best proposal of an epoch is kept |
 | Keeper | Any account | `close_epoch`, `commit_epoch`, `finalize_epoch`, `prune_epoch` |
