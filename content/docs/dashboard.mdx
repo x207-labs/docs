@@ -7,7 +7,7 @@ The dashboard is where a person sees what the circle is doing. It is a React + V
 
 - `/` is the landing page. The dashboard itself starts at [x207.vercel.app/stats](https://x207.vercel.app/stats), and the in-app home is `/app`.
 - An old dashboard link on the root with `?circle=` or `?epoch=` still opens the dashboard, at `/stats` with the query kept.
-- The hosted build targets circle `agents-main` on contract `x207-v013.testnet`.
+- The hosted build targets circle `agents-main` on contract `x207-v018.testnet` (read API `https://v018.x207.boxd.sh`).
 - It is read-only static hosting. Data comes from the hosted read API (polled every 5 seconds) and the public testnet RPC. The hosted read API answers the dashboard origin only (CORS).
 
 ```mermaid
