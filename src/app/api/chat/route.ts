@@ -2,6 +2,7 @@ import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
 import { convertToModelMessages, createUIMessageStreamResponse, streamText, toUIMessageStream } from 'ai';
 import { Document } from 'flexsearch';
 import { source } from '@/lib/source';
+import { replaceActiveTokens } from '@/lib/remark-active-circle';
 import {
   MAX_MESSAGE_CHARS,
   MAX_OUTPUT_TOKENS,
@@ -39,7 +40,7 @@ function getIndex() {
     const chunks: Chunk[] = [];
     for (const page of source.getPages()) {
       if (!('getText' in page.data)) continue;
-      const body = await page.data.getText('processed');
+      const body = replaceActiveTokens(await page.data.getText('processed'));
       chunks.push(...splitIntoChunks({ url: page.url, title: page.data.title, text: body }));
     }
     const index = new Document<{ id: number; title: string; text: string }>({

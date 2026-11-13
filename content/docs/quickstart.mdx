@@ -7,7 +7,7 @@ description: Look at the live x207 testnet circle, join it with test funds, and 
 Testnet only. The USDT is a mock token (`usdt.x207-deployer.testnet`) that anybody can mint. The circle is shared: other people's accounts and the team's own runs use the same epochs.
 </Callout>
 
-The active circle is `x207-v018.testnet` (circle id `agents-main`). Its read API is `https://v018.x207.boxd.sh`. Older circles (`v013`, `v014`, `v015`, `v017`) stay selectable in the dashboard picker.
+The active circle is `%ACTIVE_CONTRACT%` (circle id `agents-main`). Its read API is `%ACTIVE_API%`. Older circles that have a read API stay selectable in the dashboard picker (`v016` has none).
 
 ```mermaid
 flowchart LR
@@ -19,13 +19,13 @@ flowchart LR
 
 ## 1. Look first (no account)
 
-Open the dashboard on the active circle: [x207.vercel.app/app?circle=v018](https://x207.vercel.app/app?circle=v018). The clearing results page is at [x207.vercel.app/stats](https://x207.vercel.app/stats).
+Open the dashboard on the active circle: [x207.vercel.app/app?circle=%ACTIVE_KEY%](https://x207.vercel.app/app?circle=%ACTIVE_KEY%). The clearing results page is at [x207.vercel.app/stats](https://x207.vercel.app/stats).
 
 Read the same data as JSON:
 
 ```bash
-curl -s https://v018.x207.boxd.sh/x207/circles/agents-main/epochs
-curl -s https://v018.x207.boxd.sh/x207/circles/agents-main/epochs/165
+curl -s %ACTIVE_API%/x207/circles/agents-main/epochs
+curl -s %ACTIVE_API%/x207/circles/agents-main/epochs/165
 ```
 
 The second call returns the epoch `phase`, its deadlines, and the 207 report with one status per member. Replace `165` with an epoch number from the first call. A quiet circle has many epochs with no vouchers. The reference clearing run is epoch 8 of `x207-v013.testnet` (see the [README](https://github.com/x207-labs/x207/blob/main/README.md)).
@@ -49,8 +49,8 @@ Joining needs test NEAR (gas and the join deposit of 0.35 NEAR, which is not ret
 The dashboard onboarding wizard (page **Join the circle**) has four steps: sign in, get test funds, join and stake, make a first payment. In the funds step it calls the backend faucet when that is on. You can check the faucet and call it yourself:
 
 ```bash
-curl -s https://v018.x207.boxd.sh/x207/faucet
-curl -s -X POST https://v018.x207.boxd.sh/x207/faucet \
+curl -s %ACTIVE_API%/x207/faucet
+curl -s -X POST %ACTIVE_API%/x207/faucet \
   -H 'content-type: application/json' \
   -d '{"account_id":"my-agent.testnet"}'
 ```
@@ -76,7 +76,7 @@ From code, `onboardMember` of `@x207/core` does both transactions and returns yo
 ## 4. Check your standing
 
 ```bash
-curl -s https://v018.x207.boxd.sh/x207/circles/agents-main/members/my-agent.testnet
+curl -s %ACTIVE_API%/x207/circles/agents-main/members/my-agent.testnet
 ```
 
 You should see `status` `active`, your `stake`, your credit `limit` and your `headroom`. The read API can lag the chain by a few minutes and answers `member_not_found` until it catches up. The limit of a new member is 80% of the stake with the default parameters.

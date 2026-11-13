@@ -7,7 +7,7 @@ The dashboard is where a person sees what the circle is doing. It is a React + V
 
 - `/` is the landing page. The dashboard itself starts at [x207.vercel.app/stats](https://x207.vercel.app/stats), and the in-app home is `/app`.
 - An old dashboard link on the root with `?circle=` or `?epoch=` still opens the dashboard, at `/stats` with the query kept.
-- The hosted build targets circle `agents-main` on contract `x207-v018.testnet` (read API `https://v018.x207.boxd.sh`).
+- The hosted build opens on the active circle: `agents-main` on contract `%ACTIVE_CONTRACT%` (read API `%ACTIVE_API%`). The circle list and the active one come from the umbrella's `docs/deployments.json`; `?circle=` picks another.
 - It is read-only static hosting. Data comes from the hosted read API (polled every 5 seconds) and the public testnet RPC. The hosted read API answers the dashboard origin only (CORS).
 
 ```mermaid
@@ -63,7 +63,7 @@ These pages show their own sign-in card where a form needs a wallet.
 
 | Route | Title | Shows |
 | --- | --- | --- |
-| `/governance` | Governance | Rule changes proposed and voted in the Sputnik DAO that owns `x207-v013.testnet`. The active `x207-v018.testnet` is owned by a team account, not a DAO. Read only |
+| `/governance` | Governance | Rule changes proposed and voted in the Sputnik DAO that owns `x207-v013.testnet`. `x207-v018.testnet` is owned by a team account, not a DAO. Read only |
 | `/help` | Help | How x207 works in four steps, and a glossary |
 
 Also: `/sign` is the popup page of the optional Privy wallet. The old Indonesian paths (for example `/statistik`, `/laporan`, `/risiko`) redirect to the English routes with the query kept. Any other path shows "This page does not exist".

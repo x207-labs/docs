@@ -3,6 +3,7 @@ import { lucideIconsPlugin } from 'fumadocs-core/source/lucide-icons';
 import { docsRoute } from './shared';
 import { defineDocs } from 'fumadocs-mdx/macro';
 import { metaSchema, pageSchema } from 'fumadocs-core/source/schema';
+import { replaceActiveTokens } from './remark-active-circle';
 
 const docs = defineDocs({
   dir: 'content/docs',
@@ -24,8 +25,9 @@ export const source = loader({
   plugins: [lucideIconsPlugin()],
 });
 
+// UM-208: the processed Markdown keeps the %ACTIVE_...% tokens (the remark plugin changes only the rendered tree), so llms.txt replaces them here.
 export const docsLlms = llms(source, {
   renderPage: async (page) => `# ${page.data.title} (${page.url})
 
-${await page.data.getText('processed')}`,
+${replaceActiveTokens(await page.data.getText('processed'))}`,
 });

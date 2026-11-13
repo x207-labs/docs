@@ -34,7 +34,7 @@ sequenceDiagram
 
 ## Endpoints
 
-Base URL of the active circle: `https://v018.x207.boxd.sh`.
+Base URL of the active circle: `%ACTIVE_API%`. The recorded appraisals below are stored on `https://v018.x207.boxd.sh`.
 
 | Method | Path | Purpose |
 | --- | --- | --- |
@@ -43,7 +43,7 @@ Base URL of the active circle: `https://v018.x207.boxd.sh`.
 | GET | `/x207/appraisals/{id}/attestation` | The raw Intel TDX quote and NVIDIA GPU evidence of appraisal time, byte-exact, about 110 KB. |
 
 ```bash
-curl -s -X POST https://v018.x207.boxd.sh/x207/appraise \
+curl -s -X POST %ACTIVE_API%/x207/appraise \
   -H 'content-type: application/json' \
   -d '{"asset_type":"api_quota","asset_class":"B","quantity":100000,"scope":"100000 geocoding calls, read-only","provider":"Mapbox","duration_days":30,"market_price_credits":"75"}'
 ```

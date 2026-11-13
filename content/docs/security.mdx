@@ -68,7 +68,7 @@ Contract rules and checks in detail: [Contracts](/docs/contracts), [Methods](/do
 | Class C broker has no TEE | Secrets delegated through the broker are not sealed to an enclave key; the broker's audit log is a plain file. |
 | Keeper and indexer are run by the team | Epoch keeping, the deployed solver, facilitator and read API are run by the x207 team and are unpaid. Anyone can run replacements; the contract does not depend on these particular ones. |
 | Solver fee is 0 | On the 0.0.13 circle the clearing and solver fees are set to 0, so a solver has no on-chain reward there. |
-| Owner key setup | The mainnet checklist leaves open whether to delete the full-access key of the circle account. Until that is decided and written down, do not assume the account can only be changed through the DAO. A Sputnik DAO owns only `x207-v013.testnet`; the active `x207-v018.testnet` is owned by a team account. |
+| Owner key setup | The mainnet checklist leaves open whether to delete the full-access key of the circle account. Until that is decided and written down, do not assume the account can only be changed through the DAO. A Sputnik DAO owns only `x207-v013.testnet`; `x207-v018.testnet` is owned by a team account. |
 | Demand is not proven | Agents do not yet pay each other at scale. x207 reduces how much value has to move between agents; it does not create demand. |
 
 ## What was tested
