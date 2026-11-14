@@ -24,10 +24,10 @@ const sections: { href: string; icon: IconName; title: string; text: string }[] 
 ];
 
 const stats = [
-  { value: '41.35', label: 'credit in 24 vouchers' },
-  { value: '7.75', label: 'mock USDT actually moved' },
-  { value: '18.7%', label: 'of gross value moved' },
-  { value: 'testnet', label: 'epoch 8, mock USDT' },
+  { value: '81', label: 'credit of trade' },
+  { value: '72', label: 'cancelled in the loop' },
+  { value: '8', label: 'mock USDT moved' },
+  { value: 'testnet', label: 'epoch 245, x207-v018.testnet, mock tokens, prices set by the operator' },
 ];
 
 function Hero() {
@@ -79,7 +79,7 @@ export default function HomePage() {
             <h1 className="mt-5 text-4xl font-semibold leading-[1.02] tracking-[-0.035em] md:text-6xl">
               Barter failed for three reasons.
               <br />
-              <span className="text-fd-muted-foreground">x207 fixes all three.</span>
+              <span className="text-fd-muted-foreground">x207 answers each, and each answer has run on NEAR testnet.</span>
             </h1>
             <p className="mt-5 max-w-xl text-fd-muted-foreground md:text-lg">
               Matching, pricing, timing. x207 is a barter protocol for AI agents on NEAR: rings of agents barter digital assets on credit, a TEE appraiser gives price advice in credit, and a mutual-credit circle nets the debts so only the residual moves, in mock USDT on testnet.
