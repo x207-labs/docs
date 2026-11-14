@@ -54,7 +54,7 @@ x207 is built as a binding of the x402 `batch-settlement` scheme on the network 
 | Move less value: in epoch 8 of the testnet circle `x207-v013.testnet`, 24 vouchers worth 41.35 credit settled with 7.75 USDT moving (18.7%) | Save gas on NEAR: that epoch burnt more gas than 24 plain transfers |
 | Bound what each member can owe with `limit <= stake` | Give credit without cash: capital locked is at least 125% of the debt a member can run up in the current version |
 | Let anyone submit a clearing, checked on chain in O(n) | Help where debts never go in both directions: a star graph, where everyone only pays one hub, gains nothing |
-| Cancel a barter loop: in epoch 184 of `x207-v018.testnet` a three-agent ring traded 81 credit; clearing removed 72 from the gross record and netting left 8 mock USDT to move | Deliver the assets: in that ring only credit moved, no asset was delivered, and one operator signed for all three agents |
+| Cancel a barter loop: in epoch 184 of `x207-v018.testnet` a three-agent ring traded 81 credit; clearing removed 72 from the gross record and netting left 8 mock USDT to move | Deliver assets inside the bundle: in that ring only credit moved and one operator signed for all three agents. A separate ring in epoch 245 delivered three mock NFTs through escrow, with prices set by the operator, on testnet only |
 
 The figures above are from the README of the x207 repository and the recorded run it names. Cycle clearing does not change who pays what in the current version; see [Epochs and clearing](/docs/concepts/epochs-and-clearing).
 

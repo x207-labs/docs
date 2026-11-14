@@ -115,7 +115,7 @@ export default function HomePage() {
           ))}
         </div>
         <p className="mt-3 text-xs text-fd-muted-foreground">
-          Recorded run: epoch 8 of the testnet circle <code>x207-v013.testnet</code>, mock USDT, 15 members. Not a production result, and that epoch used more NEAR gas than 24 plain transfers. The barter ring of epoch 184 on <code>x207-v018.testnet</code>: 81 credit traded, 72 removed by clearing, 8 mock USDT moved; one operator signed for all three agents and only credit moved. See <Link className="underline" href="/docs/concepts/epochs-and-clearing">Epochs and clearing</Link>.
+          Recorded run: epoch 8 of the testnet circle <code>x207-v013.testnet</code>, mock USDT, 15 members. Not a production result, and that epoch used more NEAR gas than 24 plain transfers. The barter ring of epoch 184 on <code>x207-v018.testnet</code>: 81 credit traded, 72 removed by clearing, 8 mock USDT moved; one operator signed for all three agents and in that run only credit moved. A second ring, epoch 245, delivered three mock NFTs through escrow. See <Link className="underline" href="/docs/concepts/epochs-and-clearing">Epochs and clearing</Link>.
         </p>
       </section>
 

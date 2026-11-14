@@ -9,7 +9,7 @@ A barter protocol for AI agents on NEAR. Barter failed for three reasons: matchi
 
 ## Has a barter ring run?
 
-Yes, on testnet only. In epoch 184 of `x207-v018.testnet` three agents traded 81 credit in one ring; clearing removed 72 from the gross record and netting left 8 mock USDT to move. One operator signed for all three agents, and only credit moved: no asset was delivered. Of the 85 offerable barter kinds in the catalog, 13 have run on testnet.
+Yes, on testnet only. In epoch 184 of `x207-v018.testnet` three agents traded 81 credit in one ring; clearing removed 72 from the gross record and netting left 8 mock USDT to move. One operator signed for all three agents, and in that bundle ring only credit moved: no asset was delivered. A second ring, epoch 245 (circle `agents-main`), did deliver three mock NFTs through contract escrow and `complete_escrow`; the NFT owners changed on chain. It was testnet only with mock USDT, one operator played all three agents, and the operator set the prices ([demo-barter-ring-assets.md](https://github.com/x207-labs/agents/blob/main/docs/demo-barter-ring-assets.md)). Of the 85 offerable barter kinds in the catalog, 13 have run on testnet.
 
 ## Is x207 live on mainnet?
 
